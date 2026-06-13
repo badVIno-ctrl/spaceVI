@@ -6,6 +6,11 @@
 <meta name="theme-color" content="#050505">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2360a5fa'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23050505'/%3E%3Crect x='2.5' y='2.5' width='59' height='59' rx='14' fill='none' stroke='url(%23g)' stroke-width='2' opacity='0.55'/%3E%3Ccircle cx='27' cy='27' r='12.5' fill='none' stroke='url(%23g)' stroke-width='5'/%3E%3Cline x1='36' y1='36' x2='50' y2='50' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2360a5fa'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23050505'/%3E%3Ccircle cx='27' cy='27' r='12.5' fill='none' stroke='url(%23g)' stroke-width='5'/%3E%3Cline x1='36' y1='36' x2='50' y2='50' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IIOL">
+<link rel="manifest" href='data:application/manifest+json,{"name":"IIOL — весь мой Git","short_name":"IIOL","start_url":".","scope":".","display":"standalone","orientation":"portrait-primary","background_color":"%23050505","theme_color":"%23050505","description":"Весь мой GitHub в одном месте с умным поиском","icons":[{"src":"data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2064%2064%27%3E%3Crect%20width=%2764%27%20height=%2764%27%20rx=%2714%27%20fill=%27%23050505%27/%3E%3Ccircle%20cx=%2727%27%20cy=%2727%27%20r=%2712.5%27%20fill=%27none%27%20stroke=%27%2360a5fa%27%20stroke-width=%275%27/%3E%3Cline%20x1=%2736%27%20y1=%2736%27%20x2=%2750%27%20y2=%2750%27%20stroke=%27%2360a5fa%27%20stroke-width=%276%27%20stroke-linecap=%27round%27/%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}'>
 <title>IIOL — весь мой Git в одном месте</title>
 <meta name="description" content="IIOL — единый хаб всего моего GitHub: репозитории, промты, ИИ, файлы и умный поиск с автопереводом.">
 
@@ -40,7 +45,13 @@
   .text-grad { background-image:linear-gradient(to bottom right,#fff,#a5b4fc 70%,#60a5fa); -webkit-background-clip:text; background-clip:text; color:transparent; }
   mark { background:rgba(37,99,235,0.35); color:#dbeafe; border-radius:3px; padding:0 2px; }
   .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  body { overflow-x:hidden; }
+  body { overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+  * { -webkit-tap-highlight-color:transparent; }
+  @media (hover:none){ .copy-btn,.fav-btn{ opacity:.85 !important; } }
+  .kbd-active { border-color:rgba(96,165,250,0.65)!important; background:rgba(37,99,235,0.14)!important; box-shadow:0 0 0 1px rgba(96,165,250,0.35); }
+  @keyframes popIn{0%{transform:scale(.92);opacity:0;} 100%{transform:scale(1);opacity:1;}}
+  .pop-in{ animation:popIn .25s cubic-bezier(0.34,1.56,0.64,1) both; }
+  @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.05s!important;scroll-behavior:auto!important;} }
 </style>
 </head>
 
@@ -116,6 +127,16 @@
     <div class="absolute left-1/2 -translate-x-1/2 w-[2px] h-12 bg-gradient-to-b from-transparent to-blue-600 drop-animation"></div>
   </div>
 </header>
+
+<!-- ===== STATS ===== -->
+<section id="stats" class="relative max-w-5xl mx-auto px-4 sm:px-5 -mt-2 sm:-mt-4 mb-2">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+    <div class="bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-2xl p-4 sm:p-5 text-center animate-on-scroll"><div class="stat-num font-display font-semibold text-3xl sm:text-4xl text-grad" data-key="repos">0</div><div class="text-xs sm:text-sm text-neutral-400 mt-1">Репозиториев</div></div>
+    <div class="bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-2xl p-4 sm:p-5 text-center animate-on-scroll"><div class="stat-num font-display font-semibold text-3xl sm:text-4xl text-grad" data-key="files">0</div><div class="text-xs sm:text-sm text-neutral-400 mt-1">Файлов IIOL</div></div>
+    <div class="bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-2xl p-4 sm:p-5 text-center animate-on-scroll"><div class="stat-num font-display font-semibold text-3xl sm:text-4xl text-grad" data-key="links">0</div><div class="text-xs sm:text-sm text-neutral-400 mt-1">Полезных ссылок</div></div>
+    <div class="bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-2xl p-4 sm:p-5 text-center animate-on-scroll"><div class="stat-num font-display font-semibold text-3xl sm:text-4xl text-grad" data-key="total">0</div><div class="text-xs sm:text-sm text-neutral-400 mt-1">Всего записей</div></div>
+  </div>
+</section>
 
 <!-- ===== REPOSITORIES ===== -->
 <section id="repos" class="relative max-w-6xl mx-auto px-4 sm:px-5 py-16 sm:py-20 scroll-mt-24">
@@ -406,7 +427,7 @@ const INDEX = [
     desc:'Важные заметки и информация.',
     kw:'important важное заметки' },
   { title:'README.md', url:BLOB+'README.md', cat:'file', icon:'mdi:file-document',
-    desc:'Описание р��позитория и подборка ссылок.',
+    desc:'Описание репозитория и подборка ссылок.',
     kw:'readme описание ссылки' },
   { title:'black.html', url:BLOB+'black.html', cat:'file', icon:'mdi:language-html5',
     desc:'HTML-страница / сайт.', kw:'html сайт страница black' },
@@ -439,9 +460,20 @@ const CAT = {
 };
 function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+/* ---- избранное + буфер обмена + тост ---- */
+const FAV_KEY='iiol_favs';
+function getFavs(){ try{ return JSON.parse(localStorage.getItem(FAV_KEY))||[]; }catch(e){ return []; } }
+function isFav(url){ return getFavs().indexOf(url)>-1; }
+function toggleFav(url){ const f=getFavs(); const i=f.indexOf(url); if(i>-1) f.splice(i,1); else f.unshift(url); try{ localStorage.setItem(FAV_KEY, JSON.stringify(f.slice(0,100))); }catch(e){} return i<0; }
+function toast(msg){ let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.className='fixed left-1/2 bottom-6 z-[100] bg-white/[0.08] backdrop-blur-xl border border-white/15 text-white text-sm rounded-full px-4 py-2.5 shadow-2xl pointer-events-none transition-all duration-300'; t.style.transform='translate(-50%,8px)'; t.style.opacity='0'; document.body.appendChild(t); } t.textContent=msg; requestAnimationFrame(()=>{ t.style.opacity='1'; t.style.transform='translate(-50%,0)'; }); clearTimeout(t._tm); t._tm=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translate(-50%,8px)'; },1700); }
+function fallbackCopy(txt){ const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy'); toast('Ссылка скопирована'); }catch(e){} ta.remove(); }
+function copyText(txt){ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>toast('Ссылка скопирована')).catch(()=>fallbackCopy(txt)); } else { fallbackCopy(txt); } }
+
 function cardHTML(item, q){
   const c = CAT[item.cat] || CAT.file;
   let title = escapeHtml(item.title);
+  const fav = isFav(item.url);
+  const favVis = fav ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus:opacity-100';
   if(q){
     const words = expandWords(q).filter(w=>w.length>=2);
     for(const w of words){
@@ -449,17 +481,24 @@ function cardHTML(item, q){
       title = title.replace(re,'<mark>$1</mark>');
     }
   }
-  return '<a href="'+item.url+'" target="_blank" rel="noopener" '+
-    'class="group flex items-start gap-3.5 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] hover:border-blue-400/40 backdrop-blur-md rounded-2xl p-4 transition-all duration-300">'+
-    '<span class="shrink-0 w-11 h-11 rounded-xl '+c.bg+' border '+c.ring+' flex items-center justify-center">'+
-      '<iconify-icon icon="'+item.icon+'" class="text-xl '+c.color+'"></iconify-icon></span>'+
-    '<span class="min-w-0 flex-1">'+
-      '<span class="font-display font-medium text-white block truncate">'+title+'</span>'+
-      '<span class="block text-sm text-neutral-400 mt-0.5 line-clamp-2">'+escapeHtml(item.desc)+'</span>'+
-      '<span class="inline-block mt-2 text-[11px] uppercase tracking-wider '+c.color+'">'+c.label+'</span>'+
-    '</span>'+
-    '<iconify-icon icon="mdi:arrow-top-right" class="text-neutral-500 group-hover:text-blue-300 transition-colors shrink-0"></iconify-icon>'+
-  '</a>';
+  return '<div class="relative group pop-in">'+
+    '<a href="'+item.url+'" target="_blank" rel="noopener" '+
+      'class="flex items-start gap-3.5 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] hover:border-blue-400/40 backdrop-blur-md rounded-2xl p-4 pr-16 transition-all duration-300 active:scale-[0.985]">'+
+      '<span class="shrink-0 w-11 h-11 rounded-xl '+c.bg+' border '+c.ring+' flex items-center justify-center">'+
+        '<iconify-icon icon="'+item.icon+'" class="text-xl '+c.color+'"></iconify-icon></span>'+
+      '<span class="min-w-0 flex-1">'+
+        '<span class="font-display font-medium text-white block truncate">'+title+'</span>'+
+        '<span class="block text-sm text-neutral-400 mt-0.5 line-clamp-2">'+escapeHtml(item.desc)+'</span>'+
+        '<span class="inline-block mt-2 text-[11px] uppercase tracking-wider '+c.color+'">'+c.label+'</span>'+
+      '</span>'+
+    '</a>'+
+    '<div class="absolute top-3 right-3 flex items-center gap-1.5 z-10">'+
+      '<button type="button" class="fav-btn '+favVis+' w-8 h-8 rounded-lg bg-white/[0.06] hover:bg-white/[0.14] border border-white/10 flex items-center justify-center transition-all active:scale-90" data-url="'+escapeHtml(item.url)+'" aria-label="В избранное" title="В избранное">'+
+        '<iconify-icon icon="'+(fav?'mdi:star':'mdi:star-outline')+'" class="text-base '+(fav?'text-amber-300':'text-neutral-400')+'"></iconify-icon></button>'+
+      '<button type="button" class="copy-btn opacity-0 group-hover:opacity-100 focus:opacity-100 w-8 h-8 rounded-lg bg-white/[0.06] hover:bg-white/[0.14] border border-white/10 flex items-center justify-center transition-all active:scale-90" data-url="'+escapeHtml(item.url)+'" aria-label="Копировать ссылку" title="Копировать ссылку">'+
+        '<iconify-icon icon="mdi:content-copy" class="text-sm text-neutral-400"></iconify-icon></button>'+
+    '</div>'+
+  '</div>';
 }
 
 /* ===================== SEARCH WIRING ===================== */
@@ -467,28 +506,81 @@ const qEl = document.getElementById('q');
 const resEl = document.getElementById('results');
 const EXAMPLES = ['сделать красивую кнопку','выучить python','скачать видео с youtube','анимации для сайта','подготовка к егэ','промт для нейросети','моя визитка'];
 let topUrl = null;
+let curResults = [];
+let sel = -1;
+
+/* история поиска */
+const REC_KEY='iiol_recent';
+function getRecent(){ try{ return JSON.parse(localStorage.getItem(REC_KEY))||[]; }catch(e){ return []; } }
+function pushRecent(q){ q=(q||'').trim(); if(!q) return; let r=getRecent().filter(x=>x.toLowerCase()!==q.toLowerCase()); r.unshift(q); try{ localStorage.setItem(REC_KEY, JSON.stringify(r.slice(0,8))); }catch(e){} }
+function clearRecent(){ try{ localStorage.removeItem(REC_KEY); }catch(e){} renderEmpty(); }
+
+function highlightSel(){
+  const cards = resEl.querySelectorAll('[data-res]');
+  cards.forEach((el,i)=>{ const a=el.querySelector('a'); if(!a) return; a.classList.toggle('kbd-active', i===sel); if(i===sel) el.scrollIntoView({block:'nearest'}); });
+}
+function openItem(url){ if(!url) return; pushRecent(qEl.value); window.open(url,'_blank','noopener'); }
+function updateUrl(q){ try{ const u=new URL(window.location.href); if(q) u.searchParams.set('q',q); else u.searchParams.delete('q'); history.replaceState(null,'',u.toString()); }catch(e){} }
 
 function renderResults(q){
-  const ranked = searchTop(q, 6);
+  sel = -1; curResults = [];
+  if(!norm(q)){ updateUrl(''); renderEmpty(); return; }
+  updateUrl(q);
+  const ranked = searchTop(q, 8);
+  curResults = ranked;
   topUrl = ranked.length ? ranked[0].url : null;
-  if(!norm(q)){ resEl.innerHTML=''; return; }
   if(!ranked.length){
-    resEl.innerHTML = '<div class="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 text-center text-neutral-400">'+
+    resEl.innerHTML = '<div class="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 text-center text-neutral-400 pop-in">'+
       '<iconify-icon icon="mdi:emoticon-sad-outline" class="text-3xl text-neutral-500"></iconify-icon>'+
       '<p class="mt-2">Ничего не нашлось по «'+escapeHtml(q)+'».</p>'+
       '<p class="text-sm mt-1">Попробуй «дизайн», «python», «видео» или «визитка».</p></div>';
     return;
   }
-  resEl.innerHTML = '<p class="text-xs text-neutral-500 px-1">Найдено '+ranked.length+' · Enter откроет лучший результат</p>'+
-    ranked.map(it=>cardHTML(it,q)).join('');
+  resEl.innerHTML = '<p class="text-xs text-neutral-500 px-1 mb-1">Найдено '+ranked.length+' · ↑↓ выбрать · Enter открыть</p>'+
+    '<div class="space-y-3">'+ranked.map(it=>'<div data-res>'+cardHTML(it,q)+'</div>').join('')+'</div>';
+  resEl.querySelectorAll('[data-res] a').forEach(a=>a.addEventListener('click',()=>pushRecent(qEl.value)));
 }
+
+function renderEmpty(){
+  const rec=getRecent(); const favs=getFavs();
+  if(!rec.length && !favs.length){ resEl.innerHTML=''; return; }
+  let html='';
+  if(rec.length){
+    html += '<div class="text-left pop-in"><div class="flex items-center justify-between px-1 mb-2">'+
+      '<span class="text-xs uppercase tracking-wider text-neutral-500 flex items-center gap-1.5"><iconify-icon icon="mdi:history"></iconify-icon> Недавние запросы</span>'+
+      '<button id="clrRec" class="text-xs text-neutral-500 hover:text-white transition-colors">Очистить</button></div>'+
+      '<div class="flex flex-wrap gap-2 mb-5">'+rec.map(t=>'<button class="rec-chip text-xs text-neutral-300 bg-white/[0.04] border border-white/[0.08] hover:border-blue-400/40 hover:text-white rounded-full px-3 py-1.5 transition-all active:scale-95 flex items-center gap-1.5"><iconify-icon icon="mdi:magnify" class="text-sm"></iconify-icon>'+escapeHtml(t)+'</button>').join('')+'</div></div>';
+  }
+  if(favs.length){
+    const items = favs.map(u=>INDEX.find(i=>i.url===u)).filter(Boolean);
+    if(items.length){
+      html += '<div class="text-left pop-in"><span class="text-xs uppercase tracking-wider text-amber-300/80 flex items-center gap-1.5 px-1 mb-2"><iconify-icon icon="mdi:star"></iconify-icon> Избранное</span>'+
+        '<div class="space-y-3 mt-2">'+items.map(it=>cardHTML(it,'')).join('')+'</div></div>';
+    }
+  }
+  resEl.innerHTML = html;
+  const clr=document.getElementById('clrRec'); if(clr) clr.addEventListener('click', clearRecent);
+  resEl.querySelectorAll('.rec-chip').forEach(b=>b.addEventListener('click',()=>{ const v=b.textContent.trim(); qEl.value=v; qEl.focus(); renderResults(v); }));
+}
+
 qEl.addEventListener('input', e=>renderResults(e.target.value));
-qEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && topUrl) window.open(topUrl,'_blank'); });
-document.addEventListener('keydown', e=>{ if(e.key==='/' && document.activeElement!==qEl){ e.preventDefault(); qEl.focus(); }});
+qEl.addEventListener('focus', ()=>{ if(!norm(qEl.value)) renderEmpty(); });
+qEl.addEventListener('keydown', e=>{
+  if(e.key==='ArrowDown'){ if(curResults.length){ e.preventDefault(); sel=Math.min(sel+1,curResults.length-1); highlightSel(); } }
+  else if(e.key==='ArrowUp'){ if(curResults.length){ e.preventDefault(); sel=Math.max(sel-1,-1); highlightSel(); } }
+  else if(e.key==='Enter'){ const url=(sel>=0&&curResults[sel])?curResults[sel].url:topUrl; if(url) openItem(url); }
+  else if(e.key==='Escape'){ qEl.value=''; renderResults(''); }
+});
+document.addEventListener('keydown', e=>{ const tag=((document.activeElement||{}).tagName||'').toLowerCase(); if(e.key==='/' && tag!=='input' && tag!=='textarea'){ e.preventDefault(); qEl.focus(); }});
 
 const chipsEl = document.getElementById('chips');
-chipsEl.innerHTML = EXAMPLES.slice(0,6).map(t=>'<button class="chip text-xs text-neutral-300 bg-white/[0.04] border border-white/[0.08] hover:border-blue-400/40 hover:text-white rounded-full px-3 py-1.5 transition-all">'+t+'</button>').join('');
-chipsEl.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{ const v=b.textContent.split(' → ')[0]; qEl.value=v; qEl.focus(); renderResults(v); }));
+chipsEl.innerHTML = EXAMPLES.slice(0,6).map(t=>'<button class="chip text-xs text-neutral-300 bg-white/[0.04] border border-white/[0.08] hover:border-blue-400/40 hover:text-white rounded-full px-3 py-1.5 transition-all active:scale-95">'+t+'</button>').join('')+
+  '<button id="surpriseBtn" class="text-xs font-medium text-blue-200 bg-blue-500/15 border border-blue-400/30 hover:border-blue-300/60 hover:bg-blue-500/25 rounded-full px-3 py-1.5 transition-all active:scale-95 flex items-center gap-1.5"><iconify-icon icon="mdi:dice-5"></iconify-icon> Удивить меня</button>';
+chipsEl.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{ const v=b.textContent.trim(); qEl.value=v; qEl.focus(); renderResults(v); }));
+document.getElementById('surpriseBtn').addEventListener('click', ()=>{ const pool=INDEX.filter(i=>i.cat!=='repo'); const it=pool[Math.floor(Math.random()*pool.length)]; if(it){ toast('Случайная находка: '+it.title); window.open(it.url,'_blank','noopener'); } });
+
+/* открытие по ссылке-запросу (?q=) */
+(function(){ try{ const q=new URL(window.location.href).searchParams.get('q'); if(q){ qEl.value=q; renderResults(q); setTimeout(()=>{ const s=document.getElementById('search'); if(s) s.scrollIntoView({behavior:'smooth',block:'center'}); },350); } }catch(e){} })();
 
 /* ===================== RENDER SECTIONS ===================== */
 function renderAll(){
@@ -496,6 +588,7 @@ function renderAll(){
   document.getElementById('aiGrid').innerHTML   = INDEX.filter(i=>i.cat==='ai').map(i=>cardHTML(i)).join('');
   document.getElementById('fileGrid').innerHTML = INDEX.filter(i=>i.cat==='file').map(i=>cardHTML(i)).join('');
   renderLinks(currentFilter);
+  if(typeof updateStats==='function' && window.__statsAnimated) updateStats(false);
   observeCards();
 }
 const LINK_CATS = ['all','design','learn','tools','money'];
@@ -520,6 +613,25 @@ setFilterUI('all');
 const io = new IntersectionObserver((entries)=>{ entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('animate'); io.unobserve(en.target);} }); },{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
 function observeCards(){ document.querySelectorAll('#repoGrid>a,#aiGrid>a,#fileGrid>a,#linksGrid>a').forEach((el,i)=>{ if(el.dataset.obs) return; el.dataset.obs='1'; el.classList.add('animate-on-scroll'); el.style.animationDelay=((i%3)*0.07)+'s'; io.observe(el); }); }
 document.querySelectorAll('.animate-on-scroll').forEach(el=>io.observe(el));
+
+/* ---- клики по кнопкам копирования / избранного ---- */
+document.addEventListener('click', e=>{
+  const cp = e.target.closest && e.target.closest('.copy-btn');
+  if(cp){ e.preventDefault(); e.stopPropagation(); copyText(cp.dataset.url); return; }
+  const fb = e.target.closest && e.target.closest('.fav-btn');
+  if(fb){ e.preventDefault(); e.stopPropagation(); const on=toggleFav(fb.dataset.url); toast(on?'Добавлено в избранное':'Убрано из избранного'); refreshFavUI(); }
+});
+function refreshFavUI(){
+  const favs=getFavs();
+  document.querySelectorAll('.fav-btn').forEach(b=>{
+    const on=favs.indexOf(b.dataset.url)>-1;
+    b.classList.toggle('opacity-100', on);
+    b.classList.toggle('opacity-0', !on);
+    const ic=b.querySelector('iconify-icon');
+    if(ic){ ic.setAttribute('icon', on?'mdi:star':'mdi:star-outline'); ic.className='text-base '+(on?'text-amber-300':'text-neutral-400'); }
+  });
+  if(typeof renderEmpty==='function') renderEmpty();
+}
 
 renderAll();
 
@@ -618,6 +730,21 @@ async function liveSync(){
   }
 }
 liveSync();
+
+/* ===================== ЖИВАЯ СТАТИСТИКА (count-up) ===================== */
+function statsData(){ return { repos:INDEX.filter(i=>i.cat==='repo').length, files:INDEX.filter(i=>i.cat==='file').length, links:INDEX.filter(i=>['design','learn','tools','money'].indexOf(i.cat)>-1).length, total:INDEX.length }; }
+function countUp(el, to){ to=+to||0; const dur=900, t0=performance.now(), from=parseInt((el.textContent||'0').replace(/\D/g,''),10)||0; function tick(t){ const p=Math.min(1,(t-t0)/dur); el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(tick); } requestAnimationFrame(tick); }
+function updateStats(animate){ const d=statsData(); document.querySelectorAll('#stats .stat-num').forEach(el=>{ const v=d[el.dataset.key]||0; if(animate) countUp(el,v); else el.textContent=v; }); }
+(function(){ const s=document.getElementById('stats'); if(!s) return; const ob=new IntersectionObserver(en=>{ en.forEach(e=>{ if(e.isIntersecting && !window.__statsAnimated){ window.__statsAnimated=true; updateStats(true); ob.disconnect(); } }); },{threshold:0.3}); ob.observe(s); })();
+
+/* ===================== PWA / SERVICE WORKER (офлайн, where supported) ===================== */
+if('serviceWorker' in navigator){
+  try{
+    const swCode = "const C='iiol-v1';self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=e.request.url;if(u.indexOf('api.github.com')>-1)return;e.respondWith(caches.open(C).then(async c=>{const cached=await c.match(e.request);const net=fetch(e.request).then(r=>{if(r&&r.status===200){c.put(e.request,r.clone());}return r;}).catch(()=>cached);return cached||net;}));});";
+    const blob = new Blob([swCode], {type:'text/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+  }catch(e){ /* file:// or unsupported: тихо игнорируем */ }
+}
 </script>
 </body>
 </html>
