@@ -1,1217 +1,623 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>НЕЙРОКОСМОС · V.cosmos — карта нейросетей</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Unbounded:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  </head>
-  <body
-    class="bg-[#030014] text-slate-300 h-screen overflow-hidden antialiased select-none"
-    style="font-family:'Inter',sans-serif"
-  >
-    <!-- GALAXY CANVAS -->
-    <canvas id="space" class="fixed inset-0 block"></canvas>
-    <canvas
-      id="space3d"
-      class="fixed inset-0 pointer-events-none z-[2]"
-    ></canvas>
-    <!-- vignette -->
-    <div
-      class="fixed inset-0 pointer-events-none z-[5]"
-      style="background:radial-gradient(ellipse at center,transparent 55%,rgba(3,0,20,.75) 100%)"
-    ></div>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050505">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2360a5fa'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23050505'/%3E%3Crect x='2.5' y='2.5' width='59' height='59' rx='14' fill='none' stroke='url(%23g)' stroke-width='2' opacity='0.55'/%3E%3Ccircle cx='27' cy='27' r='12.5' fill='none' stroke='url(%23g)' stroke-width='5'/%3E%3Cline x1='36' y1='36' x2='50' y2='50' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2360a5fa'/%3E%3Cstop offset='1' stop-color='%231e3a8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23050505'/%3E%3Ccircle cx='27' cy='27' r='12.5' fill='none' stroke='url(%23g)' stroke-width='5'/%3E%3Cline x1='36' y1='36' x2='50' y2='50' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>IIOL — весь мой Git в одном месте</title>
+<meta name="description" content="IIOL — единый хаб всего моего GitHub: репозитории, промты, ИИ, файлы и умный поиск с автопереводом.">
 
-    <!-- STAR TOOLTIP -->
-    <div
-      id="tip"
-      class="fixed z-30 hidden pointer-events-none px-2.5 py-1 rounded-md bg-white/10 backdrop-blur-md border border-white/10 text-xs text-white whitespace-nowrap"
-    ></div>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Agbalumo&family=Manrope:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- UI LAYER -->
-    <div
-      id="ui"
-      class="opacity-0 transition-opacity duration-1000 relative z-10"
-    >
-      <!-- HEADER -->
-      <div
-        class="fixed top-0 inset-x-0 h-28 z-[35] pointer-events-none"
-        style="background:linear-gradient(to bottom,rgba(3,0,20,.85),transparent)"
-      ></div>
-      <header
-        class="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 sm:px-6 py-4 pointer-events-none"
-      >
-        <div class="flex items-center gap-3 pointer-events-auto">
-          <div
-            class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-fuchsia-600 grid place-items-center text-white font-semibold text-sm tracking-tighter shadow-lg shadow-violet-500/50 ring-1 ring-white/20"
-            style="font-family:'Unbounded'"
-          >
-            V
-          </div>
-          <div class="leading-tight">
-            <div
-              class="text-white text-sm font-semibold tracking-tight"
-              style="font-family:'Unbounded'"
-            >
-              НЕЙРОКОСМОС
-            </div>
-            <div class="text-xs text-slate-500">
-              V.cosmos · карта нейросетей
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center gap-2 sm:gap-3 pointer-events-auto">
-          <div
-            class="hidden sm:flex items-center p-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs font-medium"
-          >
-            <button
-              id="btnMap"
-              class="px-3.5 py-1.5 rounded-full bg-white/10 text-white transition"
-              onclick="setMode('map')"
-            >
-              Карта
-            </button>
-            <button
-              id="btnCat"
-              class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition"
-              onclick="setMode('cat')"
-            >
-              Каталог
-            </button>
-          </div>
-          <button
-            id="btn3d"
-            onclick="toggle3D()"
-            title="Мои проекты — интерактивная Солнечная система"
-            class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs text-slate-400 hover:text-white hover:border-white/20 transition"
-          >
-            <iconify-icon
-              icon="solar:planet-linear"
-              width="15"
-              stroke-width="1.5"
-            ></iconify-icon>
-            3D
-          </button>
-          <button
-            onclick="openPalette()"
-            class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs text-slate-400 hover:text-white hover:border-white/20 transition"
-          >
-            <iconify-icon
-              icon="solar:magnifer-linear"
-              width="15"
-              stroke-width="1.5"
-            ></iconify-icon>
-            <span class="hidden sm:inline">Гиперпрыжок</span>
-            <kbd
-              class="hidden sm:inline px-1.5 py-0.5 rounded bg-white/10 text-xs text-slate-500"
-            >
-              ⌘K
-            </kbd>
-          </button>
-          <button
-            onclick="openPrompts()"
-            class="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-full bg-violet-500/15 border border-violet-400/25 text-xs text-violet-300 hover:bg-violet-500/25 transition"
-          >
-            <iconify-icon
-              icon="solar:station-linear"
-              width="15"
-              stroke-width="1.5"
-            ></iconify-icon>
-            Станция промптов
-          </button>
-          <a
-            href="https://github.com/badVIno-ctrl?tab=repositories"
-            target="_blank"
-            rel="noopener"
-            class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white text-xs font-medium text-slate-900 hover:bg-slate-200 transition shadow-lg shadow-white/10"
-          >
-            <iconify-icon
-              icon="solar:code-square-linear"
-              width="15"
-              stroke-width="1.5"
-            ></iconify-icon>
-            <span class="hidden sm:inline">Мои статьи</span>
-          </a>
-        </div>
-      </header>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: {
+    display: ["'Plus Jakarta Sans'", 'sans-serif'],
+    body: ["'Manrope'", 'sans-serif'],
+  } } } };
+</script>
 
-      <!-- LEGEND + PROGRESS + KNOWLEDGE BASE -->
-      <div
-        class="fixed bottom-4 left-4 z-40 hidden md:block space-y-3 pointer-events-none"
-      >
-        <div
-          class="rounded-xl bg-white/5 border border-white/10 backdrop-blur-md p-3.5 w-64 pointer-events-auto"
-        >
-          <div
-            class="text-xs font-semibold text-white mb-2 flex items-center gap-1.5"
-          >
-            <iconify-icon
-              icon="solar:planet-linear"
-              width="14"
-              stroke-width="1.5"
-              class="text-violet-400"
-            ></iconify-icon>
-            Спектральные классы
-          </div>
-          <div class="space-y-1.5 text-xs text-slate-400">
-            <div class="flex items-center gap-2">
-              <span
-                class="w-2 h-2 rounded-full bg-white shadow shadow-white/60"
-              ></span>
-              Белая — проверено
-            </div>
-            <div class="flex items-center gap-2">
-              <span
-                class="w-2 h-2 rounded-full bg-amber-400 shadow shadow-amber-400/60"
-              ></span>
-              Жёлтая — требует входа
-            </div>
-            <div class="flex items-center gap-2">
-              <span
-                class="w-2 h-2 rounded-full bg-red-400 shadow shadow-red-400/60"
-              ></span>
-              Красный карлик — антибот / регион
-            </div>
-            <div class="flex items-center gap-2">
-              <span
-                class="w-2 h-2 rounded-full bg-violet-400 shadow shadow-violet-400/60"
-              ></span>
-              У чёрной дыры — перепроверить
-            </div>
-          </div>
-        </div>
-        <div
-          class="rounded-xl bg-white/5 border border-white/10 backdrop-blur-md p-3.5 w-64 pointer-events-auto"
-        >
-          <div class="flex items-center justify-between text-xs mb-2">
-            <span class="text-slate-400 flex items-center gap-1.5">
-              <iconify-icon
-                icon="solar:flag-linear"
-                width="14"
-                stroke-width="1.5"
-                class="text-emerald-400"
-              ></iconify-icon>
-              Исследование галактики
-            </span>
-            <span id="progPct" class="text-white font-semibold">0%</span>
-          </div>
-          <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
-            <div
-              id="progBar"
-              class="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-700"
-              style="width:0%"
-            ></div>
-          </div>
-          <div id="progTxt" class="text-xs text-slate-500 mt-1.5">
-            изучено 0 из 0 звёзд
-          </div>
-        </div>
-        <a
-          href="https://github.com/badVIno-ctrl?tab=repositories"
-          target="_blank"
-          rel="noopener"
-          class="block rounded-xl bg-gradient-to-br from-violet-600/20 to-fuchsia-600/10 border border-violet-400/25 backdrop-blur-md p-3.5 w-64 pointer-events-auto hover:border-violet-400/50 transition group"
-        >
-          <div
-            class="text-xs font-semibold text-white mb-1 flex items-center gap-1.5"
-          >
-            <iconify-icon
-              icon="solar:book-bookmark-linear"
-              width="14"
-              stroke-width="1.5"
-              class="text-fuchsia-400"
-            ></iconify-icon>
-            База знаний экспедиции
-          </div>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Полные подборки, гайды и статьи — в репозиториях на GitHub. Карта
-            собрана из них.
-          </p>
-          <div
-            class="mt-2 text-xs text-violet-300 flex items-center gap-1 group-hover:gap-2 transition-all"
-          >
-            github.com/badVIno-ctrl
-            <iconify-icon
-              icon="solar:arrow-right-up-linear"
-              width="13"
-              stroke-width="1.5"
-            ></iconify-icon>
-          </div>
-        </a>
-        <div
-          class="rounded-xl bg-white/5 border border-white/10 backdrop-blur-md p-3.5 w-64 pointer-events-auto"
-        >
-          <div
-            class="text-xs font-semibold text-white mb-2 flex items-center gap-1.5"
-          >
-            <iconify-icon
-              icon="solar:planet-2-linear"
-              width="14"
-              stroke-width="1.5"
-              class="text-amber-400"
-            ></iconify-icon>
-            Планеты — мои проекты
-          </div>
-          <div
-            id="solarFact"
-            class="text-xs text-slate-400 leading-relaxed min-h-[44px]"
-          >
-            загрузка телеметрии…
-          </div>
-          <div
-            id="issLive"
-            class="mt-2 pt-2 border-t border-white/10 text-xs text-slate-500 flex items-center gap-1.5 flex-wrap"
-          >
-            <span
-              class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"
-            ></span>
-            МКС: установка связи…
-          </div>
-          <div class="mt-1.5 text-[10px] text-slate-600">
-            жми «3D» → кликай планеты и приближай их · текстуры NASA
-          </div>
+<style>
+  @keyframes animationIn { 0%{opacity:0;transform:translateY(30px);filter:blur(8px);} 100%{opacity:1;transform:translateY(0);filter:blur(0);} }
+  @keyframes drop { 0%{top:-50px;opacity:0;} 10%{opacity:1;} 80%{top:100%;opacity:1;} 100%{top:100%;opacity:0;} }
+  .drop-animation { animation: drop 2.5s cubic-bezier(0.4,0,0.2,1) infinite; }
+  .animate-on-scroll { opacity:0; }
+  .animate-on-scroll.animate { animation: animationIn 0.7s ease-out both; }
+  @keyframes pulseGlow { 0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,0.25);} 50%{box-shadow:0 0 40px 6px rgba(37,99,235,0.18);} }
+  .pulse-glow { animation: pulseGlow 3.5s ease-in-out infinite; }
+  @keyframes blink { 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+  .caret::after { content:'|'; margin-left:2px; animation: blink 1s step-end infinite; color:#60a5fa; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-track { background:#070707; }
+  ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:99px; }
+  ::-webkit-scrollbar-thumb:hover { background:rgba(37,99,235,0.4); }
+  html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  .text-grad { background-image:linear-gradient(to bottom right,#fff,#a5b4fc 70%,#60a5fa); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  mark { background:rgba(37,99,235,0.35); color:#dbeafe; border-radius:3px; padding:0 2px; }
+  .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  body { overflow-x:hidden; }
+</style>
+</head>
+
+<body class="antialiased selection:bg-blue-500 selection:text-white relative bg-[#050505] text-white font-body">
+
+<!-- ===== BACKGROUND (WOW) ===== -->
+<canvas id="matrix" class="fixed inset-0 w-full h-full -z-20" style="mask-image:linear-gradient(to bottom,transparent,black 8%,black 80%,transparent);-webkit-mask-image:linear-gradient(to bottom,transparent,black 8%,black 80%,transparent);"></canvas>
+<div class="fixed top-[-10%] left-1/2 -translate-x-1/2 w-[90%] h-[380px] rounded-full bg-blue-600/10 blur-[130px] -z-10 pointer-events-none"></div>
+<div class="fixed bottom-[-10%] right-[-5%] w-[50%] h-[380px] rounded-full bg-indigo-700/10 blur-[130px] -z-10 pointer-events-none"></div>
+<div class="fixed inset-0 z-[60] opacity-40 mix-blend-overlay pointer-events-none" style="background-image:url('data:image/svg+xml,%3Csvg viewBox=%270 0 400 400%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%273%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27 opacity=%270.05%27/%3E%3C/svg%3E');"></div>
+
+<!-- ===== NAV ===== -->
+<nav class="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-5xl">
+  <div class="bg-white/[0.03] backdrop-blur-[12px] border border-white/[0.08] rounded-full px-3.5 sm:px-5 py-2.5 flex items-center justify-between shadow-2xl">
+    <a href="#top" class="flex items-center gap-2.5">
+      <span class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)]">
+        <span style="font-family:'Agbalumo',system-ui;" class="text-lg leading-none pb-0.5">I</span>
+      </span>
+      <span class="font-display font-semibold tracking-tight text-lg">IIOL</span>
+    </a>
+    <div class="hidden md:flex items-center gap-7 text-sm text-neutral-300">
+      <a href="#search" class="hover:text-white transition-colors">Поиск</a>
+      <a href="#repos" class="hover:text-white transition-colors">Репозитории</a>
+      <a href="#ai" class="hover:text-white transition-colors">Промты&nbsp;/&nbsp;ИИ</a>
+      <a href="#links" class="hover:text-white transition-colors">Ссылки</a>
+    </div>
+    <a href="https://github.com/badVIno-ctrl" target="_blank" rel="noopener" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-gradient-to-b from-white/[0.1] to-white/[0.02] border border-white/10 hover:border-white/25 hover:bg-white/10 transition-all rounded-full text-sm font-medium">
+      <iconify-icon icon="mdi:github" class="text-lg"></iconify-icon>
+      <span class="hidden sm:inline">GitHub</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ===== HERO + SEARCH ===== -->
+<header id="top" class="relative pt-32 sm:pt-44 pb-20 px-4 sm:px-5">
+  <div class="max-w-4xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] backdrop-blur-md rounded-full px-4 py-1.5 text-xs text-neutral-300 mb-6 sm:mb-8" style="animation:animationIn .8s ease-out .05s both;">
+      <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+      Весь мой GitHub — в одном месте
+    </div>
+    <h1 class="font-display font-medium tracking-tight text-[2.5rem] leading-[1] sm:text-6xl lg:text-8xl sm:leading-[0.95] mb-5 sm:mb-6 text-grad" style="animation:animationIn .8s ease-out .15s both;">
+      Опиши задачу.<br>Получи ссылку.
+    </h1>
+    <p class="text-neutral-400 text-sm sm:text-lg max-w-2xl mx-auto mb-3 px-1" style="animation:animationIn .8s ease-out .3s both;">
+      Умный поиск по всему моему GitHub с <span class="text-white font-medium">автопереводом</span> запросов на любом языке.
+    </p>
+    <p class="text-neutral-500 text-sm mb-8 h-5" style="animation:animationIn .8s ease-out .4s both;">
+      Например: <span id="hint" class="text-blue-300 caret"></span>
+    </p>
+
+    <div id="search" class="relative max-w-2xl mx-auto scroll-mt-28" style="animation:animationIn .8s ease-out .45s both;">
+      <div class="relative pulse-glow rounded-2xl">
+        <div class="absolute inset-0 -z-10 bg-blue-600/15 blur-2xl rounded-2xl"></div>
+        <div class="flex items-center gap-2.5 sm:gap-3 bg-white/[0.04] border border-white/[0.1] backdrop-blur-[14px] rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 shadow-[0_30px_60px_rgba(0,0,0,0.6)] focus-within:border-blue-400/50 transition-colors">
+          <iconify-icon icon="mdi:magnify" class="text-xl sm:text-2xl text-blue-300 shrink-0"></iconify-icon>
+          <input id="q" type="text" autocomplete="off" inputmode="search" placeholder="дизайн, python, скачать видео, визитка..."
+            class="flex-1 min-w-0 bg-transparent outline-none text-base sm:text-lg placeholder:text-neutral-500">
+          <kbd class="hidden sm:flex items-center gap-1 text-[11px] text-neutral-400 border border-white/10 rounded-md px-2 py-1 shrink-0">Enter ↵</kbd>
         </div>
       </div>
-
-      <!-- HINT -->
-      <div
-        id="hint"
-        class="fixed bottom-4 inset-x-0 z-30 hidden md:flex justify-center pointer-events-none"
-      >
-        <div
-          class="px-5 py-2.5 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-xl text-xs text-slate-400 shadow-lg shadow-black/40"
-        >
-          Тяни карту · кликай по звёздам · жми
-          <span class="text-slate-300">3D</span>
-          — каждая планета это мой проект ·
-          <span class="text-slate-300">/</span>
-          — гиперпрыжок
-        </div>
-      </div>
+      <div id="chips" class="flex flex-wrap justify-center gap-2 mt-5"></div>
+      <div id="results" class="mt-6 text-left space-y-3"></div>
     </div>
 
-    <!-- HUD CARD -->
-    <div
-      id="card"
-      class="fixed z-50 hidden md:right-6 md:top-24 md:w-80 md:inset-x-auto inset-x-3 bottom-3 md:bottom-auto"
-    >
-      <div
-        class="rounded-2xl bg-[#0b0820]/90 border border-white/15 backdrop-blur-2xl shadow-2xl shadow-violet-900/50 overflow-hidden ring-1 ring-violet-400/10"
-      >
-        <div
-          class="h-px bg-gradient-to-r from-transparent via-violet-400/60 to-transparent"
-        ></div>
-        <div class="p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div
-                class="text-xs text-violet-400 font-medium mb-1 flex items-center gap-1.5"
-              >
-                <iconify-icon
-                  icon="solar:radar-2-linear"
-                  width="13"
-                  stroke-width="1.5"
-                ></iconify-icon>
-                <span id="cardCat">Созвездие</span>
-              </div>
-              <h3
-                id="cardName"
-                class="text-white font-semibold text-lg tracking-tight"
-                style="font-family:'Unbounded'"
-              >
-                —
-              </h3>
-            </div>
-            <button
-              onclick="closeCard()"
-              class="text-slate-500 hover:text-white transition mt-0.5"
-            >
-              <iconify-icon
-                icon="solar:close-circle-linear"
-                width="20"
-                stroke-width="1.5"
-              ></iconify-icon>
-            </button>
-          </div>
-          <div
-            id="cardStatus"
-            class="mt-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border"
-          ></div>
-          <p
-            id="cardDesc"
-            class="mt-3 text-sm text-slate-400 leading-relaxed"
-          ></p>
-          <div class="mt-3 flex flex-wrap gap-1.5" id="cardTags"></div>
-          <div class="mt-5 flex gap-2">
-            <a
-              id="cardLink"
-              href="#"
-              target="_blank"
-              rel="noopener"
-              class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-sm font-medium hover:opacity-90 transition shadow-lg shadow-violet-600/30"
-            >
-              <iconify-icon
-                icon="solar:rocket-2-linear"
-                width="16"
-                stroke-width="1.5"
-              ></iconify-icon>
-              Стыковка
-            </a>
-            <button
-              id="cardFav"
-              onclick="toggleFav()"
-              class="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white transition"
-            >
-              <iconify-icon
-                id="cardFavIcon"
-                icon="solar:star-linear"
-                width="16"
-                stroke-width="1.5"
-              ></iconify-icon>
-            </button>
-            <button
-              onclick="shareTool()"
-              class="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white transition"
-            >
-              <iconify-icon
-                icon="solar:link-circle-linear"
-                width="16"
-                stroke-width="1.5"
-              ></iconify-icon>
-            </button>
-          </div>
-        </div>
+    <div class="flex items-center justify-center gap-2 mt-8" style="animation:animationIn .8s ease-out .6s both;">
+      <span id="syncBadge" class="inline-flex items-center gap-2 text-xs text-amber-300 bg-white/[0.04] border border-white/[0.08] rounded-full px-3 py-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Синхронизация с GitHub…
+      </span>
+    </div>
+  </div>
+
+  <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-px h-20 bg-gradient-to-b from-blue-700/40 to-transparent overflow-hidden hidden md:block">
+    <div class="absolute left-1/2 -translate-x-1/2 w-[2px] h-12 bg-gradient-to-b from-transparent to-blue-600 drop-animation"></div>
+  </div>
+</header>
+
+<!-- ===== REPOSITORIES ===== -->
+<section id="repos" class="relative max-w-6xl mx-auto px-4 sm:px-5 py-16 sm:py-20 scroll-mt-24">
+  <!-- profile header -->
+  <div class="bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-3xl p-5 sm:p-7 flex flex-col sm:flex-row items-center sm:items-start gap-5 mb-10 animate-on-scroll">
+    <span class="shrink-0 w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-600 to-fuchsia-700 flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.4)]">
+      <span style="font-family:'Agbalumo',system-ui;" class="text-4xl pb-1">V</span>
+    </span>
+    <div class="flex-1 text-center sm:text-left">
+      <h2 class="font-display font-semibold text-2xl sm:text-3xl tracking-tight">badVIno — VioraStudio</h2>
+      <p class="text-neutral-400 mt-1">Software developer · Building v.studio</p>
+      <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-4">
+        <a href="https://github.com/badVIno-ctrl" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-sm bg-white/[0.05] border border-white/[0.1] hover:border-blue-400/40 rounded-full px-3 py-1.5 transition-colors"><iconify-icon icon="mdi:github"></iconify-icon> GitHub</a>
+        <a href="https://t.me/VioraStudio" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-sm bg-white/[0.05] border border-white/[0.1] hover:border-sky-400/40 rounded-full px-3 py-1.5 transition-colors"><iconify-icon icon="mdi:telegram"></iconify-icon> Telegram</a>
+        <a href="https://visit-77s.pages.dev/" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-sm bg-white/[0.05] border border-white/[0.1] hover:border-fuchsia-400/40 rounded-full px-3 py-1.5 transition-colors"><iconify-icon icon="mdi:web"></iconify-icon> Визитка</a>
+        <span id="repoCount" class="inline-flex items-center gap-1.5 text-sm text-blue-300 bg-blue-500/10 border border-blue-400/20 rounded-full px-3 py-1.5"><iconify-icon icon="mdi:source-repository"></iconify-icon> — репозиториев</span>
       </div>
     </div>
+  </div>
 
-    <!-- CATALOG MODE -->
-    <div
-      id="catalog"
-      class="fixed inset-0 z-30 hidden overflow-y-auto pt-24 pb-12 px-4 sm:px-8 bg-[#030014]/85 backdrop-blur-md"
-    >
-      <div class="max-w-6xl mx-auto">
-        <div
-          class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-5"
-        >
-          <div>
-            <h2
-              class="text-white text-2xl font-semibold tracking-tight mb-1"
-              style="font-family:'Unbounded'"
-            >
-              Каталог звёзд
-            </h2>
-            <p class="text-sm text-slate-500">
-              Все инструменты галактики списком — собрано из моих статей и
-              подборок.
-            </p>
-          </div>
-          <div id="catCount" class="text-xs text-slate-500 shrink-0"></div>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-3 mb-4">
-          <div class="relative flex-1">
-            <iconify-icon
-              icon="solar:magnifer-linear"
-              width="16"
-              stroke-width="1.5"
-              class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
-            ></iconify-icon>
-            <input
-              id="catSearch"
-              oninput="renderCatalog()"
-              placeholder="Поиск по названию или задаче…"
-              class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/[0.06] border border-white/10 text-sm text-white placeholder-slate-500 outline-none focus:border-violet-400/60 focus:bg-white/[0.08] focus:ring-2 focus:ring-violet-500/20 transition"
-            />
-          </div>
-          <button
-            onclick="openPrompts()"
-            class="md:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-violet-500/15 border border-violet-400/25 text-xs text-violet-300"
-          >
-            <iconify-icon
-              icon="solar:station-linear"
-              width="15"
-              stroke-width="1.5"
-            ></iconify-icon>
-            Станция промптов
-          </button>
-        </div>
-        <div id="catFilters" class="flex flex-wrap gap-2 mb-3"></div>
-        <div id="statFilters" class="flex flex-wrap gap-2 mb-6"></div>
-        <div
-          id="catGrid"
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        ></div>
-        <a
-          href="https://github.com/badVIno-ctrl?tab=repositories"
-          target="_blank"
-          rel="noopener"
-          class="mt-8 flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-violet-600/15 to-fuchsia-600/10 border border-violet-400/25 p-5 hover:border-violet-400/50 transition group"
-        >
-          <div>
-            <div
-              class="text-white text-sm font-semibold tracking-tight mb-1 flex items-center gap-2"
-              style="font-family:'Unbounded'"
-            >
-              <iconify-icon
-                icon="solar:book-bookmark-linear"
-                width="16"
-                stroke-width="1.5"
-                class="text-fuchsia-400"
-              ></iconify-icon>
-              Хочешь больше?
-            </div>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Полная база: статьи, гайды, лайфхаки и расширенные подборки
-              нейросетей лежат в моих репозиториях на GitHub.
-            </p>
-          </div>
-          <span
-            class="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-xs font-medium text-slate-900 group-hover:bg-slate-200 transition"
-          >
-            Открыть GitHub
-            <iconify-icon
-              icon="solar:arrow-right-up-linear"
-              width="14"
-              stroke-width="1.5"
-            ></iconify-icon>
-          </span>
-        </a>
-      </div>
+  <div class="flex items-end justify-between mb-6 flex-wrap gap-2 animate-on-scroll">
+    <div>
+      <span class="text-blue-300 text-sm font-medium uppercase tracking-[0.2em]">// весь гит</span>
+      <h3 class="font-display font-medium text-2xl sm:text-4xl tracking-tight mt-2">Мои репозитории</h3>
     </div>
+    <p class="text-neutral-500 text-xs max-w-xs">Обновляются автоматически из GitHub при каждом открытии сайта.</p>
+  </div>
+  <div id="repoGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
 
-    <!-- COMMAND PALETTE -->
-    <div
-      id="palette"
-      class="fixed inset-0 z-[60] hidden bg-black/60 backdrop-blur-sm"
-      onclick="if(event.target===this)closePalette()"
-    >
-      <div class="max-w-xl mx-auto mt-24 sm:mt-32 px-4">
-        <div
-          class="rounded-2xl bg-[#0b0820]/95 border border-white/15 shadow-2xl shadow-violet-900/50 overflow-hidden ring-1 ring-violet-400/10"
-        >
-          <div
-            class="flex items-center gap-3 px-4 py-3.5 border-b border-white/10"
-          >
-            <iconify-icon
-              icon="solar:black-hole-linear"
-              width="18"
-              stroke-width="1.5"
-              class="text-violet-400"
-            ></iconify-icon>
-            <input
-              id="palInput"
-              autocomplete="off"
-              placeholder="Что хочешь сделать? («озвучка», «презентация», «код»…)"
-              class="flex-1 bg-transparent text-sm text-white placeholder-slate-500 outline-none"
-            />
-            <kbd
-              class="text-xs text-slate-500 px-1.5 py-0.5 rounded bg-white/10"
-            >
-              esc
-            </kbd>
-          </div>
-          <div id="palNav" class="px-4 py-3 flex flex-wrap gap-2"></div>
-          <div id="palResults" class="max-h-72 overflow-y-auto"></div>
-          <div
-            class="px-4 py-2.5 border-t border-white/10 text-xs text-slate-600 flex items-center gap-2"
-          >
-            <iconify-icon
-              icon="solar:square-arrow-down-linear"
-              width="13"
-              stroke-width="1.5"
-            ></iconify-icon>
-            навигатор довезёт до нужного созвездия
-          </div>
-        </div>
-      </div>
+<!-- ===== PROMPTS / AI ===== -->
+<section id="ai" class="relative max-w-6xl mx-auto px-4 sm:px-5 py-16 sm:py-20 scroll-mt-24">
+  <div class="flex items-end justify-between mb-8 flex-wrap gap-4 animate-on-scroll">
+    <div>
+      <span class="text-blue-300 text-sm font-medium uppercase tracking-[0.2em]">// раздел</span>
+      <h2 class="font-display font-medium text-2xl sm:text-4xl tracking-tight mt-2">Промты&nbsp;&amp;&nbsp;ИИ</h2>
+      <p class="text-neutral-400 mt-3 max-w-xl text-sm sm:text-base">База промтов, ИИ-инструментов и подсказок из IIOL.</p>
     </div>
+    <a href="https://github.com/badVIno-ctrl/IIOL/blob/main/AI" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-blue-300 hover:text-white transition-colors">Открыть файл AI <iconify-icon icon="mdi:arrow-top-right"></iconify-icon></a>
+  </div>
+  <div id="aiGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
 
-    <!-- PROMPTS STATION -->
-    <div
-      id="station"
-      class="fixed inset-0 z-[60] hidden bg-black/70 backdrop-blur-md overflow-y-auto"
-      onclick="if(event.target===this)closePrompts()"
-    >
-      <div class="max-w-3xl mx-auto mt-14 sm:mt-20 px-4 pb-10">
-        <div
-          class="rounded-2xl bg-[#06051a]/95 border border-violet-400/25 shadow-2xl shadow-violet-900/60 overflow-hidden ring-1 ring-white/5"
-        >
-          <div
-            class="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-white/[0.03]"
-          >
-            <div class="flex items-center gap-2.5">
-              <span class="flex gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-red-400/70"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-400/70"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400/70"></span>
-              </span>
-              <span
-                class="text-xs text-slate-400"
-                style="font-family:'JetBrains Mono'"
-              >
-                station://бортовой-компьютер/промпты
-              </span>
-            </div>
-            <button
-              onclick="closePrompts()"
-              class="text-slate-500 hover:text-white transition"
-            >
-              <iconify-icon
-                icon="solar:close-circle-linear"
-                width="20"
-                stroke-width="1.5"
-              ></iconify-icon>
-            </button>
-          </div>
-          <div
-            class="grid md:grid-cols-[220px_1fr]"
-            style="font-family:'JetBrains Mono'"
-          >
-            <div
-              class="border-b md:border-b-0 md:border-r border-white/10 p-3 max-h-40 md:max-h-96 overflow-y-auto"
-            >
-              <div
-                id="promptTags"
-                class="flex md:flex-col flex-wrap gap-1.5"
-              ></div>
-            </div>
-            <div class="p-5">
-              <div class="flex items-center justify-between mb-3">
-                <div id="promptTitle" class="text-violet-300 text-sm">
-                  // выбери промпт
-                </div>
-                <button
-                  id="copyBtn"
-                  onclick="copyPrompt()"
-                  class="hidden items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-400/30 text-xs text-violet-300 hover:bg-violet-500/30 transition"
-                >
-                  <iconify-icon
-                    icon="solar:copy-linear"
-                    width="13"
-                    stroke-width="1.5"
-                  ></iconify-icon>
-                  <span id="copyTxt">copy</span>
-                </button>
-              </div>
-              <pre
-                id="promptBody"
-                class="text-xs sm:text-sm text-emerald-300/90 leading-relaxed whitespace-pre-wrap min-h-[200px] max-h-72 overflow-y-auto"
-              >&gt; бортовой компьютер готов_<span class="animate-pulse">█</span></pre>
-            </div>
-          </div>
-        </div>
-      </div>
+<!-- ===== IIOL FILES ===== -->
+<section id="files" class="relative max-w-6xl mx-auto px-4 sm:px-5 py-16 sm:py-20 scroll-mt-24">
+  <div class="text-center mb-10 animate-on-scroll">
+    <span class="text-blue-300 text-sm font-medium uppercase tracking-[0.2em]">// репозиторий IIOL</span>
+    <h2 class="font-display font-medium text-2xl sm:text-4xl tracking-tight mt-2">Файлы IIOL</h2>
+    <p class="text-neutral-400 mt-3 max-w-xl mx-auto text-sm sm:text-base">Каждый файл и папка — сайты, скрипты, заметки.</p>
+  </div>
+  <div id="fileGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
+
+<!-- ===== USEFUL LINKS ===== -->
+<section id="links" class="relative max-w-6xl mx-auto px-4 sm:px-5 py-16 sm:py-20 scroll-mt-24">
+  <div class="text-center mb-8 animate-on-scroll">
+    <span class="text-blue-300 text-sm font-medium uppercase tracking-[0.2em]">// база знаний</span>
+    <h2 class="font-display font-medium text-2xl sm:text-4xl tracking-tight mt-2">Полезные ссылки</h2>
+    <p class="text-neutral-400 mt-3 max-w-xl mx-auto text-sm sm:text-base">Подборка из README — дизайн, обучение, инструменты и финансы.</p>
+  </div>
+  <div id="filterChips" class="flex flex-wrap justify-center gap-2 mb-8"></div>
+  <div id="linksGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="relative border-t border-white/[0.06] mt-6">
+  <div class="max-w-6xl mx-auto px-4 sm:px-5 py-8 sm:py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-neutral-400">
+    <div class="flex items-center gap-2.5">
+      <span class="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center">
+        <span style="font-family:'Agbalumo',system-ui;" class="text-sm pb-0.5">I</span>
+      </span>
+      <span class="font-display font-semibold text-white">IIOL</span>
+      <span>· badVIno-ctrl</span>
     </div>
-
-    <!-- VOID (easter egg) -->
-    <div
-      id="void"
-      class="fixed inset-0 z-[70] hidden bg-black grid place-items-center transition-opacity duration-1000 opacity-0"
-    >
-      <div class="text-center px-6">
-        <p
-          class="text-slate-400 text-lg tracking-tight"
-          style="font-family:'Unbounded'"
-        >
-          Ты улетел за край карты.
-        </p>
-        <p class="text-slate-600 text-sm mt-3">
-          Смысла жизни здесь нет. Но есть целая галактика нейросетей —
-          возвращайся.
-        </p>
-        <button
-          onclick="leaveVoid()"
-          class="mt-8 px-5 py-2.5 rounded-full border border-white/15 text-sm text-slate-300 hover:bg-white/5 transition"
-        >
-          ← обратно в галактику
-        </button>
-      </div>
+    <div class="flex gap-5 sm:gap-6">
+      <a href="https://github.com/badVIno-ctrl" target="_blank" rel="noopener" class="hover:text-white transition-colors">GitHub</a>
+      <a href="#search" class="hover:text-white transition-colors">Поиск</a>
+      <a href="#top" class="hover:text-white transition-colors">Наверх</a>
     </div>
+    <div>© 2026 VioraStudio</div>
+  </div>
+</footer>
 
-    <!-- TOAST -->
-    <div
-      id="projPanel"
-      class="fixed z-[55] hidden right-3 bottom-3 sm:right-6 sm:bottom-6 w-[calc(100%-1.5rem)] sm:w-80"
-    >
-      <div
-        class="rounded-2xl bg-[#0b0820]/90 border border-sky-400/30 backdrop-blur-xl shadow-2xl shadow-sky-900/40 overflow-hidden"
-      >
-        <div
-          class="h-px bg-gradient-to-r from-transparent via-sky-400/70 to-transparent"
-        ></div>
-        <div class="p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div
-                class="text-xs text-sky-400 font-medium mb-1 flex items-center gap-1.5"
-              >
-                <iconify-icon
-                  icon="solar:planet-linear"
-                  width="13"
-                  stroke-width="1.5"
-                ></iconify-icon>
-                <span id="projTag">проект</span>
-              </div>
-              <h3
-                id="projName"
-                class="text-white font-semibold text-lg tracking-tight"
-                style="font-family:'Unbounded'"
-              >
-                —
-              </h3>
-            </div>
-            <button
-              onclick="closeProj()"
-              class="text-slate-500 hover:text-white transition mt-0.5"
-            >
-              <iconify-icon
-                icon="solar:close-circle-linear"
-                width="20"
-                stroke-width="1.5"
-              ></iconify-icon>
-            </button>
-          </div>
-          <p
-            id="projDesc"
-            class="mt-3 text-sm text-slate-400 leading-relaxed"
-          ></p>
-          <a
-            id="projLink"
-            href="#"
-            target="_blank"
-            rel="noopener"
-            class="mt-4 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-violet-600 text-white text-sm font-medium hover:opacity-90 transition shadow-lg shadow-sky-600/30"
-          >
-            <iconify-icon
-              icon="solar:rocket-2-linear"
-              width="16"
-              stroke-width="1.5"
-            ></iconify-icon>
-            Открыть проект
-          </a>
-        </div>
-      </div>
-    </div>
-    <div
-      id="toast"
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] hidden px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/15 text-sm text-white shadow-xl"
-    ></div>
+<script>
+/*__CORE_START__*/
+const USER = 'badVIno-ctrl';
+const GH = 'https://github.com/'+USER+'/IIOL';
+const BLOB = GH + '/blob/main/';
+const TREE = GH + '/tree/main/';
 
-    <script>
-      /* ============ DATA (правишь только этот блок) ============ */
-      const CATS=[
-       {n:'Чат-ассистенты',x:.50,y:.18},{n:'Изображения',x:.19,y:.27},{n:'Видео',x:.81,y:.24},
-       {n:'Аудио и озвучка',x:.13,y:.62},{n:'Презентации',x:.32,y:.82},{n:'Разработка',x:.66,y:.70},
-       {n:'Текст и копирайт',x:.85,y:.46},{n:'Ресёрч',x:.35,y:.48}
-      ];
-      const TOOLS=[
-       {id:'chatgpt',n:'ChatGPT',u:'https://chat.openai.com',c:0,s:'y',d:'Универсальный ассистент OpenAI: тексты, код, анализ, голос.',t:'диалог тексты код'},
-       {id:'claude',n:'Claude',u:'https://claude.ai',c:0,s:'y',d:'Сильный в длинных текстах, коде и аккуратных рассуждениях.',t:'тексты код анализ'},
-       {id:'gemini',n:'Gemini',u:'https://gemini.google.com',c:0,s:'y',d:'Мультимодальный ассистент Google с огромным контекстом.',t:'диалог документы'},
-       {id:'deepseek',n:'DeepSeek',u:'https://chat.deepseek.com',c:0,s:'w',d:'Бесплатный сильный чат и режим рассуждений R1.',t:'код математика бесплатно'},
-       {id:'lechat',n:'Mistral Le Chat',u:'https://chat.mistral.ai',c:0,s:'w',d:'Быстрый европейский ассистент, щедрый бесплатный тариф.',t:'диалог быстро'},
-       {id:'grok',n:'Grok',u:'https://grok.com',c:0,s:'r',d:'Ассистент xAI с доступом к актуальным постам X.',t:'новости диалог'},
-       {id:'mj',n:'Midjourney',u:'https://midjourney.com',c:1,s:'y',d:'Эталон художественной генерации картинок.',t:'картинка арт иллюстрация'},
-       {id:'ideogram',n:'Ideogram',u:'https://ideogram.ai',c:1,s:'w',d:'Лучше всех рисует текст на изображениях, логотипы.',t:'картинка логотип текст'},
-       {id:'recraft',n:'Recraft',u:'https://recraft.ai',c:1,s:'w',d:'Векторная графика, иконки и фирстиль под контролем.',t:'вектор иконки дизайн'},
-       {id:'leonardo',n:'Leonardo AI',u:'https://leonardo.ai',c:1,s:'y',d:'Игровые ассеты, стили, тонкая настройка моделей.',t:'картинка геймдев'},
-       {id:'krea',n:'Krea',u:'https://krea.ai',c:1,s:'w',d:'Реалтайм-генерация и апскейл картинок.',t:'картинка апскейл реалтайм'},
-       {id:'playground',n:'Playground',u:'https://playground.com',c:1,s:'r',d:'Редактор + генерация, шаблоны для соцсетей.',t:'картинка шаблоны'},
-       {id:'runway',n:'Runway',u:'https://runwayml.com',c:2,s:'y',d:'Gen-3: видео из текста и картинок, моушн-инструменты.',t:'видео анимация'},
-       {id:'pika',n:'Pika',u:'https://pika.art',c:2,s:'y',d:'Короткие видео и эффекты из текста/фото.',t:'видео эффекты'},
-       {id:'luma',n:'Luma Dream Machine',u:'https://lumalabs.ai',c:2,s:'w',d:'Плавные кинематографичные видео-генерации.',t:'видео кино'},
-       {id:'kling',n:'Kling',u:'https://klingai.com',c:2,s:'r',d:'Длинные реалистичные ролики, сильная физика.',t:'видео реализм'},
-       {id:'hailuo',n:'Hailuo AI',u:'https://hailuoai.video',c:2,s:'w',d:'Быстрая бесплатная видео-генерация.',t:'видео бесплатно'},
-       {id:'eleven',n:'ElevenLabs',u:'https://elevenlabs.io',c:3,s:'y',d:'Лучшая озвучка и клонирование голоса.',t:'озвучка голос дубляж'},
-       {id:'suno',n:'Suno',u:'https://suno.com',c:3,s:'w',d:'Полноценные песни с вокалом из текстового описания.',t:'музыка песня'},
-       {id:'udio',n:'Udio',u:'https://udio.com',c:3,s:'y',d:'Музыка студийного качества, тонкий контроль жанра.',t:'музыка'},
-       {id:'murf',n:'Murf AI',u:'https://murf.ai',c:3,s:'w',d:'Дикторская озвучка для видео и презентаций.',t:'озвучка диктор'},
-       {id:'gamma',n:'Gamma',u:'https://gamma.app',c:4,s:'w',d:'Презентации и сайты из одного промпта.',t:'презентация слайды сайт'},
-       {id:'tome',n:'Tome',u:'https://tome.app',c:4,s:'y',d:'Сторителлинг-презентации с генерацией контента.',t:'презентация история'},
-       {id:'beautiful',n:'Beautiful.ai',u:'https://beautiful.ai',c:4,s:'y',d:'Умные шаблоны — слайды верстаются сами.',t:'презентация шаблоны'},
-       {id:'cursor',n:'Cursor',u:'https://cursor.com',c:5,s:'w',d:'Редактор кода с ИИ-агентом внутри.',t:'код редактор разработка'},
-       {id:'v0',n:'v0',u:'https://v0.dev',c:5,s:'y',d:'Генерация интерфейсов и компонентов из описания.',t:'код ui интерфейс'},
-       {id:'bolt',n:'Bolt.new',u:'https://bolt.new',c:5,s:'w',d:'Полные веб-приложения в браузере из промпта.',t:'код приложение'},
-       {id:'replit',n:'Replit',u:'https://replit.com',c:5,s:'y',d:'Облачная среда + агент, деплой в один клик.',t:'код деплой'},
-       {id:'codeium',n:'Codeium',u:'https://codeium.com',c:5,s:'w',d:'Бесплатный автокомплит кода для любых IDE.',t:'код автокомплит бесплатно'},
-       {id:'quillbot',n:'QuillBot',u:'https://quillbot.com',c:6,s:'w',d:'Перефразирование, грамматика, саммари.',t:'текст рерайт'},
-       {id:'copyai',n:'Copy.ai',u:'https://copy.ai',c:6,s:'y',d:'Маркетинговые тексты и воронки на потоке.',t:'текст маркетинг'},
-       {id:'rytr',n:'Rytr',u:'https://rytr.me',c:6,s:'w',d:'Дешёвый копирайтер: посты, письма, описания.',t:'текст посты'},
-       {id:'jasper',n:'Jasper',u:'https://jasper.ai',c:6,s:'r',d:'Корпоративный контент-комбайн под бренд-войс.',t:'текст бренд'},
-       {id:'perplexity',n:'Perplexity',u:'https://perplexity.ai',c:7,s:'w',d:'Поисковик с ответами и ссылками на источники.',t:'ресёрч поиск источники'},
-       {id:'phind',n:'Phind',u:'https://phind.com',c:7,s:'w',d:'Поиск-ассистент для разработчиков.',t:'ресёрч код'},
-       {id:'elicit',n:'Elicit',u:'https://elicit.com',c:7,s:'w',d:'Анализ научных статей и литобзоры.',t:'ресёрч наука статьи'},
-       {id:'consensus',n:'Consensus',u:'https://consensus.app',c:7,s:'y',d:'Ответы на вопросы по данным научных работ.',t:'ресёрч наука'},
-       {id:'nightcafe',n:'NightCafe',u:'https://creator.nightcafe.studio',c:1,s:'h',d:'Старый генератор картинок — проверить, жив ли.',t:'картинка перепроверить'},
-       {id:'artbreeder',n:'Artbreeder',u:'https://artbreeder.com',c:1,s:'h',d:'Скрещивание изображений — статус неясен.',t:'картинка перепроверить'},
-       {id:'riffusion',n:'Riffusion',u:'https://riffusion.com',c:3,s:'h',d:'Музыка из спектрограмм — может быть поглощён.',t:'музыка перепроверить'},
-       {id:'poe',n:'Poe (зеркало)',u:'https://poe.com',c:0,s:'h',d:'Агрегатор моделей — доступ нестабилен.',t:'диалог перепроверить'}
-      ];
-      const PROMPTS=[
-       {n:'Генератор персонажей',tag:'персонажи',b:'Ты — нарративный дизайнер. Создай персонажа для [жанр]:\n1) Имя, возраст, архетип\n2) Внешность в 3 ярких деталях\n3) Внутренний конфликт и тайна\n4) Речевые особенности + 3 фирменные фразы\n5) Арка изменения за историю\nФормат: карточка персонажа, без воды.'},
-       {n:'Код-ревьюер',tag:'разработка',b:'Ты — senior-инженер. Проведи ревью кода ниже:\n— баги и краевые случаи\n— безопасность и производительность\n— читаемость, нейминг\nВыдай список замечаний по убыванию критичности, затем исправленную версию.\n\n[код]'},
-       {n:'Схема из текста',tag:'схемы',b:'Преобразуй текст в Mermaid-диаграмму.\nПравила: flowchart TD, не более 12 узлов, подписи до 4 слов, выдели ключевой путь.\nСначала выбери тип схемы и обоснуй одним предложением, затем выдай только код.\n\n[текст]'},
-       {n:'Промпт для Midjourney',tag:'персонажи',b:'Собери промпт для генерации изображения по описанию: [описание].\nСтруктура: субъект → действие → окружение → свет → стиль/референсы → камера и линза → --ar и --stylize.\nДай 3 варианта: реализм, иллюстрация, кинокадр.'},
-       {n:'Декомпозиция фичи',tag:'разработка',b:'Ты — техлид. Разбей фичу «[фича]» на задачи:\n— пользовательские сценарии\n— задачи фронт/бэк/инфра с оценкой в часах\n— риски и что выяснить до старта\n— что войдёт в MVP, что отложим\nФормат: markdown-таблица.'},
-       {n:'Лендинг за 10 минут',tag:'маркетинг',b:'Напиши структуру лендинга для [продукт]:\nhero (заголовок ≤ 7 слов + подзаголовок), 3 боли → 3 решения, социальное доказательство, оффер с дедлайном, FAQ из 4 вопросов, CTA.\nТон: уверенный, без клише «инновационный» и «уникальный».'}
-      ];
-      const ST={
-       w:{c:'#ffffff',label:'Класс A · проверено',cls:'text-white border-white/30 bg-white/10'},
-       y:{c:'#fbbf24',label:'Класс G · требует входа',cls:'text-amber-300 border-amber-400/30 bg-amber-400/10'},
-       r:{c:'#f87171',label:'Красный карлик · антибот/регион',cls:'text-red-300 border-red-400/30 bg-red-400/10'},
-       h:{c:'#a78bfa',label:'Горизонт событий · перепроверить',cls:'text-violet-300 border-violet-400/30 bg-violet-400/10'}
-      };
-      /* ============ STATE ============ */
-      const WW=1700,WH=1000,BH={x:.92*WW,y:.80*WH},SC={x:.5*WW,y:.52*WH},PL={x:.08*WW,y:.86*WH};
-      let canvas=document.getElementById('space'),ctx=canvas.getContext('2d'),W=0,H=0,DPR=1;
-      let state='intro',T0=performance.now(),mx=0,my=0,cam={x:WW/2,y:WH/2,z:.8},mode='map';
-      let layers=[],particles=[],hoverStar=null,current=null,comet=null,warp=null,drag=null,dragged=false;
-      let visited=new Set(JSON.parse(localStorage.getItem('vc_visited')||'[]'));
-      let favs=new Set(JSON.parse(localStorage.getItem('vc_favs')||'[]'));
-      const isMobile=()=>window.innerWidth<768;
+/* ---- RU -> EN автопереводчик (доменный словарь) ---- */
+const DICT = {
+  'дизайн':'design ui', 'кнопка':'button design ui', 'кнопки':'button design ui',
+  'анимация':'animation effect motion', 'анимации':'animation effect motion', 'эффект':'animation effect', 'эффекты':'animation effect',
+  'иконка':'icon', 'иконки':'icon', 'интерфейс':'ui interface',
+  'урок':'lesson lessons learn course', 'уроки':'lessons learn course', 'обучение':'learn course education',
+  'учить':'learn course', 'выучить':'learn course', 'учиться':'learn course',
+  'питон':'python', 'пайтон':'python', 'код':'code script', 'скрипт':'script code', 'программирование':'programming code',
+  'сайт':'site html web page', 'страница':'page html site', 'верстка':'html css layout',
+  'важно':'important', 'важное':'important', 'зубы':'teeth', 'экзамен':'exam ege oge',
+  'видео':'video youtube', 'ютуб':'youtube video', 'скачать':'download', 'загрузить':'download upload',
+  'почта':'mail', 'бизнес':'business visit card', 'визитка':'visit business card', 'карта':'card', 'карточка':'card',
+  'медиа':'media', 'анализ':'analysis parsing analytics', 'парсинг':'parsing analysis', 'контент':'content',
+  'продюсер':'producer media', 'нейросеть':'ai neural', 'ии':'ai', 'промт':'prompt ai', 'промты':'prompt ai',
+  'цвет':'color palette', 'цвета':'color palette', 'палитра':'color palette', 'картинка':'image picture photo',
+  'фото':'photo image camera', 'сжать':'compress image', 'сжатие':'compress image', 'логотип':'logo brand', 'лого':'logo brand',
+  'фильм':'movie film', 'фильмы':'movie film', 'кино':'movie film',
+  'деньги':'money finance trading', 'трейдинг':'trading finance money', 'финансы':'finance money',
+  'инвестиции':'investment finance', 'депозит':'deposit money', 'книга':'book', 'книги':'book',
+  'терминал':'terminal console command', 'консоль':'console terminal command', 'команда':'command terminal',
+  'мобильная':'mobile responsive', 'адаптив':'responsive mobile', 'егэ':'exam ege', 'огэ':'exam oge',
+  'поступление':'admission university', 'репозиторий':'repository repo', 'репозитории':'repository repo',
+  'портфолио':'portfolio', 'профиль':'profile readme', 'проверить':'check validate', 'качество':'quality'
+};
 
-      function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);
-       cam.z=Math.max(.55,Math.min(W/WW,H/WH)*1.02);}
-      addEventListener('resize',resize);resize();
+const TR = {'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'h','ц':'c','ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'};
+function translit(w){ return w.split('').map(c=>TR[c]!==undefined?TR[c]:c).join(''); }
 
-      /* place stars */
-      const counts={};
-      TOOLS.forEach((t,i)=>{
-       if(t.s==='h'){t.orb={r:55+(i%4)*24,a:i*1.9,sp:.00025+(i%3)*.0001};return;}
-       const k=(counts[t.c]=(counts[t.c]||0)+1)-1,cat=CATS[t.c];
-       const ang=k*2.2+t.c,r=34+(k%3)*30+Math.floor(k/3)*22;
-       t.wx=cat.x*WW+Math.cos(ang)*r;t.wy=cat.y*WH+Math.sin(ang)*r*.7;
-       t.ph=Math.random()*6;
-      });
-      for(let d of[.18,.45,.85]){const n=d<.5?150:80,arr=[];for(let i=0;i<n;i++)arr.push({x:Math.random(),y:Math.random(),r:d*1.6+Math.random(),tw:.5+Math.random()*2,ph:Math.random()*6,hue:Math.random()<.12});layers.push({d,stars:arr});}
+function norm(s){ return (s||'').toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9 ]/gi,' ').replace(/\s+/g,' ').trim(); }
 
-      /* intro particles */
-      function buildIntro(){
-       const oc=document.createElement('canvas');oc.width=900;oc.height=160;const o=oc.getContext('2d');
-       o.font='700 '+(isMobile()?52:78)+'px Unbounded, sans-serif';o.fillStyle='#fff';o.textAlign='center';o.textBaseline='middle';
-       o.fillText('НЕЙРОКОСМОС',450,80);
-       const img=o.getImageData(0,0,900,160).data;particles=[];
-       for(let y=0;y<160;y+=4)for(let x=0;x<900;x+=4){if(img[(y*900+x)*4+3]>128){
-        particles.push({tx:W/2+(x-450)*(isMobile()?.6:1),ty:H/2+(y-80)*(isMobile()?.6:1),x:Math.random()*W,y:Math.random()*H,vx:0,vy:0,a:1});}}
+/* расширяем запрос: оригинал + перевод + транслит + основа слова */
+function expandWords(q){
+  const base = norm(q).split(' ').filter(Boolean);
+  const out = new Set();
+  for(const w of base){
+    out.add(w);
+    if(DICT[w]) DICT[w].split(' ').forEach(x=>out.add(x));
+    // частичный матч по корню слова (дизайнер -> дизайн)
+    if(w.length>=4){ for(const k in DICT){ if(k.startsWith(w.slice(0,Math.max(4,w.length-2))) || w.startsWith(k)){ DICT[k].split(' ').forEach(x=>out.add(x)); } } }
+    const tr = translit(w); if(tr && tr!==w) out.add(tr);
+  }
+  return [...out].filter(Boolean);
+}
+
+function score(item, words){
+  const t = norm(item.title), k = norm(item.kw||''), d = norm(item.desc||'');
+  const kSet = new Set(k.split(' '));
+  let s = 0;
+  for(const w of words){
+    if(!w) continue;
+    if(t.includes(w)) s += 7;
+    if(kSet.has(w)) s += 5; else if(k.includes(w)) s += 3;
+    if(d.includes(w)) s += 2;
+  }
+  return s;
+}
+
+function searchTop(q, limit){
+  const words = expandWords(q);
+  if(!words.length) return [];
+  return INDEX.map(it=>({it, s:score(it,words)}))
+    .filter(x=>x.s>0)
+    .sort((a,b)=> b.s-a.s || a.it.title.length-b.it.title.length)
+    .slice(0, limit||8)
+    .map(x=>x.it);
+}
+
+/* ================= БАЗОВЫЙ ИНДЕКС (fallback; поверх подгружается GitHub) ================= */
+const INDEX = [
+  /* --- РЕПОЗИТОРИИ (fallback, заменяются живыми данными) --- */
+  { title:'IIOL', url:'https://github.com/'+USER+'/IIOL', cat:'repo', icon:'mdi:folder-star', live:true,
+    desc:'Коллекция сайтов, скриптов, промтов и заметок.',
+    kw:'iiol коллекция база промты файлы сайты html prompt' },
+  { title:'vioramedia', url:'https://github.com/'+USER+'/vioramedia', cat:'repo', icon:'mdi:youtube', live:true,
+    desc:'YouTube-парсинг и анализ контента (Viora Media).',
+    kw:'viora media youtube парсинг анализ контент продюсер parsing analysis' },
+  { title:'vioraAI', url:'https://github.com/'+USER+'/vioraAI', cat:'repo', icon:'mdi:robot', live:true,
+    desc:'ИИ-направление проекта Viora.',
+    kw:'viora ai ии нейросеть neural' },
+  { title:'visit', url:'https://github.com/'+USER+'/visit', cat:'repo', icon:'mdi:card-account-details', live:true, homepage:'https://visit-77s.pages.dev/',
+    desc:'Визитка / Business Card. Демо: visit-77s.pages.dev',
+    kw:'visit визитка бизнес карта card business сайт' },
+  { title:'badVIno-ctrl', url:'https://github.com/'+USER, cat:'repo', icon:'mdi:account-circle', live:true,
+    desc:'Мой профиль на GitHub (README).',
+    kw:'профиль profile readme' },
+
+  /* --- ПРОМТЫ / ИИ --- */
+  { title:'Файл AI — промты и ИИ', url:BLOB+'AI', cat:'ai', icon:'mdi:robot-happy',
+    desc:'Главная база промтов и ИИ-инструментов IIOL.',
+    kw:'ии ai промт промты нейросеть chat gpt подсказка ассистент prompt' },
+  { title:'promts.html — коллекция промтов', url:BLOB+'promts.html', cat:'ai', icon:'mdi:format-quote-close',
+    desc:'Готовая страница с промтами.',
+    kw:'промт промты prompt шаблон текст ии ai' },
+  { title:'Xynth — ИИ-аналитик рынка', url:'https://www.xynth.finance/', cat:'ai', icon:'mdi:chart-line-variant',
+    desc:'ИИ как личный менеджер по инвестициям — анализ компаний и рынков.',
+    kw:'ии инвестиции анализ рынок финансы ai finance' },
+  { title:'AI Skills Fest (Microsoft)', url:'https://aiskillsfest.event.microsoft.com/', cat:'ai', icon:'mdi:microsoft',
+    desc:'От основ машинного обучения до Azure и Copilot.',
+    kw:'машинное обучение ml azure copilot ии курс ai' },
+  { title:'AI-стартап (Greg Isenberg)', url:'https://x.com/gregisenberg/status/2005317303370486015', cat:'ai', icon:'mdi:lightbulb-on',
+    desc:'Идеи и разбор ИИ-стартапа.',
+    kw:'ии стартап бизнес идея startup ai' },
+
+  /* --- ДИЗАЙН --- */
+  { title:'Uiverse — кнопки и UI', url:'https://uiverse.io/elements', cat:'design', icon:'mdi:gesture-tap-button',
+    desc:'Готовые кнопки и элементы дизайна с кодом.',
+    kw:'кнопка кнопки дизайн ui элемент css html button design компонент' },
+  { title:'shadcn/ui — компоненты', url:'https://ui.shadcn.com/docs/installation', cat:'design', icon:'mdi:palette-swatch',
+    desc:'Современные компоненты и дизайн-система.',
+    kw:'кнопка дизайн ui компонент react design button интерфейс' },
+  { title:'Bootstrap Icons', url:'https://icons.getbootstrap.com/', cat:'design', icon:'mdi:shape-outline',
+    desc:'Иконки для кнопок и интерфейсов.',
+    kw:'иконка иконки icon кнопка svg символ' },
+  { title:'ReactBits — анимации', url:'https://www.reactbits.dev/', cat:'design', icon:'mdi:auto-fix',
+    desc:'Огромная библиотека стильных анимаций для сайтов с кодом.',
+    kw:'анимация анимации эффект сайт react animation красиво wow' },
+  { title:'Vecto3d — 3D-анимации', url:'https://vecto3d.xyz/', cat:'design', icon:'mdi:cube-outline',
+    desc:'Анимации и 3D для веба.',
+    kw:'анимация 3d эффект сайт animation' },
+  { title:'Гайд по HTML и CSS (видео)', url:'https://www.youtube.com/watch?v=2tAPxjcGLms', cat:'design', icon:'mdi:youtube',
+    desc:'WebDesignMaster — гайд по HTML и CSS.',
+    kw:'html css гайд урок верстка сайт основы design' },
+  { title:'Мобильная вёрстка (видео)', url:'https://www.youtube.com/watch?v=LAq9p4mqrpI', cat:'design', icon:'mdi:cellphone',
+    desc:'REDGroup — адаптив и мобильная вёрстка.',
+    kw:'мобильная верстка адаптив responsive css mobile телефон' },
+  { title:'Project Wallace — проверка CSS', url:'https://www.projectwallace.com/css-code-quality', cat:'design', icon:'mdi:check-decagram',
+    desc:'Анализ качества CSS-кода.',
+    kw:'css проверка качество код анализ валидатор check' },
+  { title:'ContentCore — дизайн и лого', url:'https://contentcore.xyz/', cat:'design', icon:'mdi:image-edit',
+    desc:'Инструмент для дизайна и логотипов.',
+    kw:'дизайн лого логотип бренд design logo' },
+  { title:'Coolors — палитры цветов', url:'https://coolors.co/', cat:'design', icon:'mdi:palette',
+    desc:'Быстрый генератор цветовых палитр для дизайна.',
+    kw:'цвет цвета палитра дизайн color palette design' },
+
+  /* --- ОБУЧЕНИЕ --- */
+  { title:'VSCode Edu — курсы', url:'https://vscodeedu.com/courses', cat:'learn', icon:'mdi:school',
+    desc:'Python (19ч), HTML, CSS, JavaScript (16ч).',
+    kw:'python html css javascript js курс учиться программирование урок основы learn' },
+  { title:'Intro to Python (VSCode Edu)', url:'https://vscodeedu.com/courses/intro-to-python', cat:'learn', icon:'mdi:language-python',
+    desc:'Python с нуля.',
+    kw:'python питон с нуля программирование курс учиться код learn' },
+  { title:'MediaSoft Academy — уроки', url:'https://academy.mediasoft.team/', cat:'learn', icon:'mdi:book-open-variant',
+    desc:'Разные уроки по языкам + подготовка к ОГЭ/ЕГЭ.',
+    kw:'уроки языки программирование огэ егэ экзамен learn' },
+  { title:'Т-Банк — подготовка к ОГЭ/ЕГЭ', url:'https://tnumber.tbank.ru/app/topics', cat:'learn', icon:'mdi:clipboard-text',
+    desc:'Темы и подготовка к ОГЭ/ЕГЭ.',
+    kw:'егэ огэ экзамен информатика математика школа поступление' },
+  { title:'Командная строка (видео)', url:'https://youtube.com/shorts/eBk-gZ8ht5c', cat:'learn', icon:'mdi:console',
+    desc:'Быстрый ролик про командную строку.',
+    kw:'командная строка терминал cmd bash консоль terminal' },
+  { title:'Бесплатный учебник с языками', url:'https://youtube.com/shorts/sgIcHQvxM38', cat:'learn', icon:'mdi:book',
+    desc:'Учебник по языкам программирования.',
+    kw:'учебник языки программирование бесплатно learn' },
+
+  /* --- ИНСТРУМЕНТЫ --- */
+  { title:'YouTubeGo — скачать видео', url:'https://youtubego.org/', cat:'tools', icon:'mdi:download',
+    desc:'Скачать видео с YouTube.',
+    kw:'скачать видео youtube ютуб download ролик' },
+  { title:'MeTube — загрузчик YouTube', url:'https://github.com/alexta69/metube', cat:'tools', icon:'mdi:cloud-download',
+    desc:'Удобный self-hosted загрузчик видео с YouTube.',
+    kw:'скачать видео youtube загрузчик ютуб download' },
+  { title:'Squoosh — сжатие картинок', url:'https://squoosh.app/', cat:'tools', icon:'mdi:image-size-select-large',
+    desc:'Быстрое сжатие и оптимизация изображений (от Google).',
+    kw:'сжать сжатие картинка изображение фото оптимизация image compress' },
+  { title:'Carbon — красивые скрины кода', url:'https://carbon.now.sh/', cat:'tools', icon:'mdi:code-tags',
+    desc:'Делает красивые картинки с исходным кодом.',
+    kw:'код скриншот картинка code красиво screenshot' },
+  { title:'Project Indigo — съёмка на iPhone', url:'https://apps.apple.com/ge/app/project-indigo/id6742591546', cat:'tools', icon:'mdi:camera',
+    desc:'Бесплатное приложение Adobe для проф. съёмки.',
+    kw:'фото камера съемка iphone adobe фотография photo' },
+  { title:'Nothing to Watch — выбор фильмов', url:'https://nothing-to-watch.port80.ch/', cat:'tools', icon:'mdi:movie-open',
+    desc:'Помогает выбрать, что посмотреть.',
+    kw:'фильм фильмы кино выбрать сериал movie film' },
+
+  /* --- ФИНАНСЫ --- */
+  { title:'Трейдинг с нуля (видео)', url:'https://www.youtube.com/watch?v=1qqkcJLj3MQ', cat:'money', icon:'mdi:finance',
+    desc:'Трейдинг с нуля.',
+    kw:'трейдинг деньги инвестиции рынок биржа trading finance' },
+  { title:'Про депозит (видео)', url:'https://www.youtube.com/watch?v=msfIXonsfCY', cat:'money', icon:'mdi:cash-multiple',
+    desc:'Разбор про депозит.',
+    kw:'депозит деньги инвестиции трейдинг finance' },
+  { title:'Антарктик-кошелёк (Telegram)', url:'https://t.me/antarcticwallet/442?single', cat:'money', icon:'mdi:wallet',
+    desc:'Заметка про деньги.',
+    kw:'деньги кошелек финансы telegram money' },
+  { title:'Книга: Первые 20 часов', url:'https://www.google.com/search?q=Первые+20+часов+Джош+Кауфман', cat:'money', icon:'mdi:book-education',
+    desc:'Джош Кауфман — как быстро освоить любой навык.',
+    kw:'книга навык обучение быстро кауфман book саморазвитие' },
+
+  /* --- ФАЙЛЫ IIOL (fallback, заменяются живым деревом) --- */
+  { title:'design/ (папка)', url:TREE+'design', cat:'file', icon:'mdi:folder',
+    desc:'Папка с дизайн-материалами.',
+    kw:'design дизайн папка материалы folder' },
+  { title:'AI', url:BLOB+'AI', cat:'file', icon:'mdi:robot-happy',
+    desc:'Файл с промтами и ИИ-инструментами.',
+    kw:'ai ии промт prompt' },
+  { title:'IMPORTANT', url:BLOB+'IMPORTANT', cat:'file', icon:'mdi:alert-decagram',
+    desc:'Важные заметки и информация.',
+    kw:'important важное заметки' },
+  { title:'README.md', url:BLOB+'README.md', cat:'file', icon:'mdi:file-document',
+    desc:'Описание р��позитория и подборка ссылок.',
+    kw:'readme описание ссылки' },
+  { title:'black.html', url:BLOB+'black.html', cat:'file', icon:'mdi:language-html5',
+    desc:'HTML-страница / сайт.', kw:'html сайт страница black' },
+  { title:'design.html', url:BLOB+'design.html', cat:'file', icon:'mdi:language-html5',
+    desc:'Дизайн-страница / сайт.', kw:'html design дизайн сайт страница' },
+  { title:'lessons.html', url:BLOB+'lessons.html', cat:'file', icon:'mdi:language-html5',
+    desc:'Страница с уроками.', kw:'html lessons уроки обучение' },
+  { title:'teeth.html', url:BLOB+'teeth.html', cat:'file', icon:'mdi:language-html5',
+    desc:'HTML-страница.', kw:'html teeth зубы сайт' },
+  { title:'exam.py', url:BLOB+'exam.py', cat:'file', icon:'mdi:language-python',
+    desc:'Python-скрипт (экзамен).', kw:'python exam экзамен скрипт егэ' },
+  { title:'python.py', url:BLOB+'python.py', cat:'file', icon:'mdi:language-python',
+    desc:'Python-скрипт.', kw:'python скрипт код' },
+  { title:'s4H.js', url:BLOB+'s4H.js', cat:'file', icon:'mdi:language-javascript',
+    desc:'JavaScript-скрипт.', kw:'javascript js скрипт код' },
+  { title:'st', url:BLOB+'st', cat:'file', icon:'mdi:file-code',
+    desc:'Файл st.', kw:'st файл' },
+];
+/*__CORE_END__*/
+
+/* ===================== UI / RENDER ===================== */
+const CAT = {
+  repo:  { label:'Репозиторий', color:'text-indigo-300',  ring:'border-indigo-400/30',  bg:'bg-indigo-500/10' },
+  ai:    { label:'Промты / ИИ', color:'text-fuchsia-300', ring:'border-fuchsia-400/30', bg:'bg-fuchsia-500/10' },
+  design:{ label:'Дизайн',      color:'text-sky-300',     ring:'border-sky-400/30',     bg:'bg-sky-500/10' },
+  learn: { label:'Обучение',    color:'text-emerald-300', ring:'border-emerald-400/30', bg:'bg-emerald-500/10' },
+  tools: { label:'Инструменты', color:'text-amber-300',   ring:'border-amber-400/30',   bg:'bg-amber-500/10' },
+  money: { label:'Финансы',     color:'text-lime-300',    ring:'border-lime-400/30',    bg:'bg-lime-500/10' },
+  file:  { label:'Файл',        color:'text-blue-300',    ring:'border-blue-400/30',    bg:'bg-blue-500/10' },
+};
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function cardHTML(item, q){
+  const c = CAT[item.cat] || CAT.file;
+  let title = escapeHtml(item.title);
+  if(q){
+    const words = expandWords(q).filter(w=>w.length>=2);
+    for(const w of words){
+      const re = new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+      title = title.replace(re,'<mark>$1</mark>');
+    }
+  }
+  return '<a href="'+item.url+'" target="_blank" rel="noopener" '+
+    'class="group flex items-start gap-3.5 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.08] hover:border-blue-400/40 backdrop-blur-md rounded-2xl p-4 transition-all duration-300">'+
+    '<span class="shrink-0 w-11 h-11 rounded-xl '+c.bg+' border '+c.ring+' flex items-center justify-center">'+
+      '<iconify-icon icon="'+item.icon+'" class="text-xl '+c.color+'"></iconify-icon></span>'+
+    '<span class="min-w-0 flex-1">'+
+      '<span class="font-display font-medium text-white block truncate">'+title+'</span>'+
+      '<span class="block text-sm text-neutral-400 mt-0.5 line-clamp-2">'+escapeHtml(item.desc)+'</span>'+
+      '<span class="inline-block mt-2 text-[11px] uppercase tracking-wider '+c.color+'">'+c.label+'</span>'+
+    '</span>'+
+    '<iconify-icon icon="mdi:arrow-top-right" class="text-neutral-500 group-hover:text-blue-300 transition-colors shrink-0"></iconify-icon>'+
+  '</a>';
+}
+
+/* ===================== SEARCH WIRING ===================== */
+const qEl = document.getElementById('q');
+const resEl = document.getElementById('results');
+const EXAMPLES = ['сделать красивую кнопку','выучить python','скачать видео с youtube','анимации для сайта','подготовка к егэ','промт для нейросети','моя визитка'];
+let topUrl = null;
+
+function renderResults(q){
+  const ranked = searchTop(q, 6);
+  topUrl = ranked.length ? ranked[0].url : null;
+  if(!norm(q)){ resEl.innerHTML=''; return; }
+  if(!ranked.length){
+    resEl.innerHTML = '<div class="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 text-center text-neutral-400">'+
+      '<iconify-icon icon="mdi:emoticon-sad-outline" class="text-3xl text-neutral-500"></iconify-icon>'+
+      '<p class="mt-2">Ничего не нашлось по «'+escapeHtml(q)+'».</p>'+
+      '<p class="text-sm mt-1">Попробуй «дизайн», «python», «видео» или «визитка».</p></div>';
+    return;
+  }
+  resEl.innerHTML = '<p class="text-xs text-neutral-500 px-1">Найдено '+ranked.length+' · Enter откроет лучший результат</p>'+
+    ranked.map(it=>cardHTML(it,q)).join('');
+}
+qEl.addEventListener('input', e=>renderResults(e.target.value));
+qEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && topUrl) window.open(topUrl,'_blank'); });
+document.addEventListener('keydown', e=>{ if(e.key==='/' && document.activeElement!==qEl){ e.preventDefault(); qEl.focus(); }});
+
+const chipsEl = document.getElementById('chips');
+chipsEl.innerHTML = EXAMPLES.slice(0,6).map(t=>'<button class="chip text-xs text-neutral-300 bg-white/[0.04] border border-white/[0.08] hover:border-blue-400/40 hover:text-white rounded-full px-3 py-1.5 transition-all">'+t+'</button>').join('');
+chipsEl.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{ const v=b.textContent.split(' → ')[0]; qEl.value=v; qEl.focus(); renderResults(v); }));
+
+/* ===================== RENDER SECTIONS ===================== */
+function renderAll(){
+  document.getElementById('repoGrid').innerHTML = INDEX.filter(i=>i.cat==='repo').map(i=>cardHTML(i)).join('');
+  document.getElementById('aiGrid').innerHTML   = INDEX.filter(i=>i.cat==='ai').map(i=>cardHTML(i)).join('');
+  document.getElementById('fileGrid').innerHTML = INDEX.filter(i=>i.cat==='file').map(i=>cardHTML(i)).join('');
+  renderLinks(currentFilter);
+  observeCards();
+}
+const LINK_CATS = ['all','design','learn','tools','money'];
+const LBL = {all:'Все', design:'Дизайн', learn:'Обучение', tools:'Инструменты', money:'Финансы'};
+let currentFilter = 'all';
+const filterEl = document.getElementById('filterChips');
+const linksGrid = document.getElementById('linksGrid');
+function renderLinks(cat){
+  currentFilter = cat;
+  const items = INDEX.filter(i=>['design','learn','tools','money'].includes(i.cat) && (cat==='all'||i.cat===cat));
+  linksGrid.innerHTML = items.map(i=>cardHTML(i)).join('');
+  observeCards();
+}
+function setFilterUI(active){
+  filterEl.querySelectorAll('.flt').forEach(x=>{ x.className='flt text-sm rounded-full px-4 py-2 transition-all border '+(x.dataset.cat===active?'bg-blue-600/20 border-blue-400/40 text-white':'bg-white/[0.04] border-white/[0.08] text-neutral-300 hover:text-white'); });
+}
+filterEl.innerHTML = LINK_CATS.map(c=>'<button data-cat="'+c+'" class="flt text-sm rounded-full px-4 py-2 transition-all border bg-white/[0.04] border-white/[0.08] text-neutral-300 hover:text-white">'+LBL[c]+'</button>').join('');
+filterEl.querySelectorAll('.flt').forEach(b=>b.addEventListener('click',()=>{ setFilterUI(b.dataset.cat); renderLinks(b.dataset.cat); }));
+setFilterUI('all');
+
+/* scroll reveal */
+const io = new IntersectionObserver((entries)=>{ entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('animate'); io.unobserve(en.target);} }); },{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
+function observeCards(){ document.querySelectorAll('#repoGrid>a,#aiGrid>a,#fileGrid>a,#linksGrid>a').forEach((el,i)=>{ if(el.dataset.obs) return; el.dataset.obs='1'; el.classList.add('animate-on-scroll'); el.style.animationDelay=((i%3)*0.07)+'s'; io.observe(el); }); }
+document.querySelectorAll('.animate-on-scroll').forEach(el=>io.observe(el));
+
+renderAll();
+
+/* ===================== TYPEWRITER ===================== */
+const hintEl = document.getElementById('hint');
+let hi=0, ci=0, deleting=false;
+function type(){
+  const word = '\u00ab'+EXAMPLES[hi]+'\u00bb';
+  hintEl.textContent = word.slice(0, ci);
+  if(!deleting && ci<word.length) ci++;
+  else if(deleting && ci>0) ci--;
+  else if(!deleting){ deleting=true; setTimeout(type,1500); return; }
+  else { deleting=false; hi=(hi+1)%EXAMPLES.length; }
+  setTimeout(type, deleting?35:60);
+}
+type();
+
+/* ===================== MATRIX RAIN ===================== */
+(function(){
+  const c = document.getElementById('matrix'); const ctx = c.getContext('2d');
+  const chars = 'IIOLVIORA0123456789<>{}/=+*アイウエオカキクケコ'.split('');
+  let cols, drops, fs=16;
+  function resize(){ c.width=window.innerWidth; c.height=window.innerHeight; fs=window.innerWidth<640?12:16; cols=Math.floor(c.width/fs); drops=new Array(cols).fill(0).map(()=>Math.random()*-100); }
+  resize(); let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(resize,150); });
+  function draw(){
+    ctx.fillStyle='rgba(5,5,5,0.08)'; ctx.fillRect(0,0,c.width,c.height); ctx.font=fs+'px monospace';
+    for(let i=0;i<cols;i++){
+      const t=chars[Math.floor(Math.random()*chars.length)]; const x=i*fs, y=drops[i]*fs;
+      const head = drops[i]>0 && Math.random()>0.975;
+      ctx.fillStyle = head ? 'rgba(191,219,254,0.9)' : 'rgba(59,130,246,0.5)';
+      ctx.fillText(t,x,y);
+      if(y>c.height && Math.random()>0.975) drops[i]=Math.random()*-20;
+      drops[i]+=0.5;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ===================== LIVE GITHUB SYNC =====================
+   Автоподгрузка: при каждом открытии сайт тянет все репозитории и файлы IIOL
+   через публичный GitHub API. Новый пуш → новый контент на сайте автоматически.
+=============================================================== */
+function langIcon(lang){
+  const m={'HTML':'mdi:language-html5','CSS':'mdi:language-css3','JavaScript':'mdi:language-javascript','TypeScript':'mdi:language-typescript','Python':'mdi:language-python','Java':'mdi:language-java','C++':'mdi:language-cpp','C':'mdi:language-c','Shell':'mdi:console','Vue':'mdi:vuejs','Go':'mdi:language-go'};
+  return m[lang]||'mdi:source-repository';
+}
+function extIcon(path){
+  const e=(path.split('.').pop()||'').toLowerCase();
+  const m={'html':'mdi:language-html5','css':'mdi:language-css3','js':'mdi:language-javascript','ts':'mdi:language-typescript','py':'mdi:language-python','md':'mdi:file-document','json':'mdi:code-json','png':'mdi:image','jpg':'mdi:image','jpeg':'mdi:image','svg':'mdi:svg','txt':'mdi:text-box'};
+  return m[e]||'mdi:file-code';
+}
+function fileItem(path){
+  // берём описание из курированного индекса, если есть
+  const known = INDEX.find(i=>i.cat==='file' && i.url.endsWith('/'+path));
+  return { title:path, url:BLOB+path, cat:'file', icon:extIcon(path),
+    desc: known?known.desc:'Файл репозитория IIOL.',
+    kw:(path+' '+translit(norm(path))+' '+(known?known.kw:'')).toLowerCase() };
+}
+async function liveSync(){
+  const badge = document.getElementById('syncBadge');
+  const setBadge=(html,cls)=>{ badge.innerHTML=html; badge.className='inline-flex items-center gap-2 text-xs '+cls+' bg-white/[0.04] border border-white/[0.08] rounded-full px-3 py-1.5'; };
+  try{
+    const rr = await fetch('https://api.github.com/users/'+USER+'/repos?per_page=100&sort=updated',{headers:{'Accept':'application/vnd.github+json'}});
+    if(!rr.ok) throw new Error('repos '+rr.status);
+    const repos = await rr.json();
+    if(Array.isArray(repos) && repos.length){
+      const items = repos.filter(r=>!r.fork).map(r=>({
+        title:r.name, url:r.html_url, cat:'repo', icon:langIcon(r.language), homepage:r.homepage||'',
+        desc:(r.description|| (r.homepage?('Сайт: '+r.homepage):'Без описания.')),
+        kw:(r.name+' '+(r.language||'')+' '+(r.description||'')+' '+((r.topics||[]).join(' '))+' '+translit(norm(r.name))).toLowerCase()
+      }));
+      // заменяем repo-элементы
+      for(let i=INDEX.length-1;i>=0;i--) if(INDEX[i].cat==='repo') INDEX.splice(i,1);
+      INDEX.unshift(...items);
+      document.getElementById('repoCount').innerHTML='<iconify-icon icon="mdi:source-repository"></iconify-icon> '+items.length+' репозиториев';
+    }
+    // файлы IIOL (рекурсивное дерево)
+    try{
+      const tr = await fetch('https://api.github.com/repos/'+USER+'/IIOL/git/trees/main?recursive=1');
+      if(tr.ok){
+        const tree = await tr.json();
+        const blobs = (tree.tree||[]).filter(n=>n.type==='blob' && !n.path.includes('/')).slice(0,60);
+        const dirs  = [...new Set((tree.tree||[]).filter(n=>n.type==='tree' && !n.path.includes('/')).map(n=>n.path))];
+        if(blobs.length||dirs.length){
+          for(let i=INDEX.length-1;i>=0;i--) if(INDEX[i].cat==='file') INDEX.splice(i,1);
+          dirs.forEach(d=>INDEX.push({title:d+'/ (папка)', url:TREE+d, cat:'file', icon:'mdi:folder', desc:'Папка репозитория IIOL.', kw:(d+' '+translit(norm(d))+' папка folder').toLowerCase()}));
+          blobs.forEach(b=>INDEX.push(fileItem(b.path)));
+        }
       }
-      buildIntro();
-
-      /* helpers */
-      const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-      function w2s(x,y){const px=(mx/W-.5),py=(my/H-.5);return[(x-cam.x)*cam.z+W/2-px*18,(y-cam.y)*cam.z+H/2-py*12];}
-      function holePos(t,now){return[BH.x+Math.cos(t.orb.a+now*t.orb.sp)*t.orb.r,BH.y+Math.sin(t.orb.a+now*t.orb.sp)*t.orb.r*.55];}
-      function starPos(t,now){return t.s==='h'?holePos(t,now):[t.wx,t.wy];}
-
-      /* ============ RENDER ============ */
-      function draw(now){
-       ctx.fillStyle='#030014';ctx.fillRect(0,0,W,H);
-       const px=(mx/W-.5),py=(my/H-.5),t=now*.001;
-       const nebs=[[.22,.28,'rgba(124,58,237,.12)'],[.78,.66,'rgba(217,70,239,.08)'],[.62,.18,'rgba(56,189,248,.07)'],[.40,.85,'rgba(99,102,241,.06)']];
-       for(let i=0;i<nebs.length;i++){const[nx,ny,c]=nebs[i],cx=nx*W-px*30*(i+1),cy=ny*H-py*20*(i+1),R=Math.max(W,H)*.42;
-        const g=ctx.createRadialGradient(cx,cy,0,cx,cy,R);g.addColorStop(0,c);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
-       const warpI=warp?Math.sin(Math.PI*warp.p):0;
-       for(const L of layers){const ox=-cam.x*L.d*.12-px*L.d*40,oy=-cam.y*L.d*.08-py*L.d*26;
-        for(const s of L.stars){let sx=((s.x*W+ox)%W+W)%W,sy=((s.y*H+oy)%H+H)%H;
-         const a=.35+.55*Math.abs(Math.sin(t*s.tw+s.ph));
-         if(warpI>0.05){const dx=sx-W/2,dy=sy-H/2,len=warpI*L.d*120;
-          ctx.strokeStyle='rgba(255,255,255,'+a*.8+')';ctx.lineWidth=s.r;ctx.beginPath();ctx.moveTo(sx,sy);
-          const d=Math.hypot(dx,dy)||1;ctx.lineTo(sx+dx/d*len,sy+dy/d*len);ctx.stroke();}
-         else{ctx.fillStyle=s.hue?'rgba(196,181,253,'+a+')':'rgba(255,255,255,'+a+')';ctx.beginPath();ctx.arc(sx,sy,s.r,0,7);ctx.fill();}}}
-       if(state==='intro'){drawIntro(now);requestAnimationFrame(draw);return;}
-       if(warp){warp.p=Math.min(1,(now-warp.t0)/950);const e=ease(warp.p);
-        cam.x=warp.fx+(warp.tx-warp.fx)*e;cam.y=warp.fy+(warp.ty-warp.fy)*e;cam.z=warp.fz+(warp.tz-warp.fz)*e;
-        if(warp.p>=1){const cb=warp.done;warp=null;cb&&cb();}}
-       if(mode==='map'&&!isMobile())drawGalaxy(now,t);
-       if(comet)drawComet(now);
-       requestAnimationFrame(draw);
-      }
-      function drawIntro(now){
-       const el=now-T0;
-       for(const p of particles){
-        if(el<2400){const pr=ease(Math.min(1,el/1600));p.cx=p.x+(p.tx-p.x)*pr;p.cy=p.y+(p.ty-p.y)*pr;}
-        else{if(!p.boom){p.boom=1;const a=Math.random()*6.28,v=1+Math.random()*5;p.vx=Math.cos(a)*v;p.vy=Math.sin(a)*v;}
-         p.cx+=p.vx;p.cy+=p.vy;p.a-=.022;}
-        if(p.a>0){ctx.fillStyle='rgba(220,210,255,'+p.a+')';ctx.fillRect(p.cx,p.cy,1.6,1.6);}}
-       if(el>2500&&el<2600){ctx.fillStyle='rgba(167,139,250,'+(1-(el-2500)/100)*.15+')';ctx.fillRect(0,0,W,H);}
-       if(el>3300){state='galaxy';document.getElementById('ui').classList.add('opacity-100');
-        if(isMobile())setMode('cat');applyHash();}
-      }
-      function drawGalaxy(now,t){
-       ctx.lineWidth=1;
-       CATS.forEach((cat,ci)=>{
-        const stars=TOOLS.filter(x=>x.c===ci&&x.s!=='h');const[lx,ly]=w2s(cat.x*WW,cat.y*WH-78);
-        ctx.strokeStyle='rgba(139,124,246,.18)';
-        for(let i=0;i<stars.length;i++){const[ax,ay]=w2s(stars[i].wx,stars[i].wy),[bx,by]=w2s(stars[(i+1)%stars.length].wx,stars[(i+1)%stars.length].wy);
-         ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();}
-        ctx.fillStyle='rgba(148,163,184,.55)';ctx.font='600 11px Inter';ctx.textAlign='center';ctx.fillText(cat.n.toUpperCase(),lx,ly);
-       });
-       const[hx,hy]=w2s(BH.x,BH.y);
-       const hg=ctx.createRadialGradient(hx,hy,4,hx,hy,46);hg.addColorStop(0,'rgba(0,0,0,1)');hg.addColorStop(.5,'rgba(76,29,149,.5)');hg.addColorStop(1,'transparent');
-       ctx.fillStyle=hg;ctx.beginPath();ctx.arc(hx,hy,46,0,7);ctx.fill();
-       ctx.save();ctx.translate(hx,hy);ctx.rotate(t*.4);ctx.strokeStyle='rgba(167,139,250,.5)';ctx.lineWidth=2;
-       ctx.beginPath();ctx.ellipse(0,0,30,10,0,0,7);ctx.stroke();ctx.restore();
-       ctx.fillStyle='#000';ctx.beginPath();ctx.arc(hx,hy,11,0,7);ctx.fill();
-       ctx.strokeStyle='rgba(196,181,253,.8)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(hx,hy,12,0,7);ctx.stroke();
-       ctx.fillStyle='rgba(148,163,184,.5)';ctx.font='600 11px Inter';ctx.textAlign='center';ctx.fillText('ЧЁРНАЯ ДЫРА · ПЕРЕПРОВЕРИТЬ',hx,hy+66);
-       const[sx,sy]=w2s(SC.x,SC.y),pul=1+Math.sin(t*2)*.15;
-       const sg=ctx.createRadialGradient(sx,sy,0,sx,sy,34*pul);sg.addColorStop(0,'rgba(167,139,250,.45)');sg.addColorStop(1,'transparent');
-       ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx,sy,34*pul,0,7);ctx.fill();
-       ctx.save();ctx.translate(sx,sy);ctx.rotate(t*.6);ctx.strokeStyle='rgba(196,181,253,.9)';ctx.lineWidth=1.5;
-       ctx.strokeRect(-7,-7,14,14);ctx.rotate(.785);ctx.strokeRect(-7,-7,14,14);ctx.restore();
-       ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx,sy,3,0,7);ctx.fill();
-       ctx.fillStyle='rgba(196,181,253,.8)';ctx.font='600 11px Inter';ctx.fillText('СТАНЦИЯ ПРОМПТОВ',sx,sy+30);
-       const[plx,ply]=w2s(PL.x,PL.y);
-       const pg=ctx.createRadialGradient(plx-3,ply-3,1,plx,ply,12);pg.addColorStop(0,'#7dd3fc');pg.addColorStop(1,'#1e3a8a');
-       ctx.fillStyle=pg;ctx.beginPath();ctx.arc(plx,ply,11,0,7);ctx.fill();
-       ctx.strokeStyle='rgba(125,211,252,.35)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(plx,ply,20,6,-.4,0,7);ctx.stroke();
-       ctx.fillStyle='rgba(148,163,184,.55)';ctx.fillText('МОЯ ОРБИТА · '+favs.size,plx,ply+30);
-       let fi=0;for(const id of favs){const a=t*.7+fi*(6.28/Math.max(1,favs.size));
-        ctx.fillStyle='#7dd3fc';ctx.beginPath();ctx.arc(plx+Math.cos(a)*26,ply+Math.sin(a)*9-Math.sin(a)*2,1.8,0,7);ctx.fill();fi++;}
-       ctx.textAlign='center';
-       for(const tool of TOOLS){
-        const[wx,wy]=starPos(tool,performance.now()),[x,y]=w2s(wx,wy),col=ST[tool.s].c;
-        const tw=.7+.3*Math.sin(t*2+(tool.ph||0)),hov=hoverStar===tool,r=(hov?6:3.6)*tw+(tool.s==='h'?-.8:0);
-        const g=ctx.createRadialGradient(x,y,0,x,y,r*4);g.addColorStop(0,col);g.addColorStop(1,'transparent');
-        ctx.globalAlpha=hov?.5:.25;ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r*4,0,7);ctx.fill();ctx.globalAlpha=1;
-        ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
-        if(favs.has(tool.id)){ctx.strokeStyle='rgba(125,211,252,.9)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r+4,0,7);ctx.stroke();}
-        if(visited.has(tool.id)){ctx.fillStyle='#34d399';ctx.fillRect(x+r+2,y-r-7,1.5,7);ctx.beginPath();ctx.moveTo(x+r+3.5,y-r-7);ctx.lineTo(x+r+9,y-r-5);ctx.lineTo(x+r+3.5,y-r-3);ctx.fill();}
-        if(hov){ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='600 11px Inter';ctx.fillText(tool.n,x,y-12);}
-       }
-      }
-      function drawComet(now){
-       comet.x+=comet.vx;comet.y+=comet.vy;
-       const g=ctx.createLinearGradient(comet.x,comet.y,comet.x-comet.vx*30,comet.y-comet.vy*30);
-       g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(1,'transparent');
-       ctx.strokeStyle=g;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(comet.x,comet.y);ctx.lineTo(comet.x-comet.vx*30,comet.y-comet.vy*30);ctx.stroke();
-       ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(comet.x,comet.y,2.5,0,7);ctx.fill();
-       if(comet.x<-100||comet.x>W+100||comet.y>H+100)comet=null;
-      }
-      setInterval(()=>{if(!comet&&state==='galaxy'&&mode==='map'&&Math.random()<.5)
-       comet={x:-60,y:Math.random()*H*.4,vx:3.2+Math.random()*2,vy:1.4+Math.random()};},9000);
-      requestAnimationFrame(draw);
-
-      /* ============ INTERACTION ============ */
-      canvas.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;
-       if(drag){cam.x-=e.movementX/cam.z;cam.y-=e.movementY/cam.z;
-        cam.x=Math.max(0,Math.min(WW,cam.x));cam.y=Math.max(0,Math.min(WH,cam.y));
-        if(Math.abs(e.movementX)+Math.abs(e.movementY)>2)dragged=true;return;}
-       if(state!=='galaxy'||mode!=='map'||isMobile())return;
-       hoverStar=pick(e.clientX,e.clientY);
-       canvas.style.cursor=hoverStar||pickSpecial(e.clientX,e.clientY)?'pointer':'grab';
-      });
-      canvas.addEventListener('mousedown',()=>{drag=true;dragged=false;canvas.style.cursor='grabbing';});
-      addEventListener('mouseup',()=>{drag=false;});
-      canvas.addEventListener('click',e=>{
-       if(dragged||state!=='galaxy'||mode!=='map'||isMobile())return;
-       if(comet&&Math.hypot(e.clientX-comet.x,e.clientY-comet.y)<28){
-        const t=TOOLS[Math.floor(Math.random()*TOOLS.length)];toast('☄ Инструмент дня: '+t.n);warpTo(t);comet=null;return;}
-       const sp=pickSpecial(e.clientX,e.clientY);
-       if(sp==='station'){openPrompts();return;}
-       if(sp==='planet'){toast('На орбите: '+(favs.size?[...favs].map(id=>TOOLS.find(t=>t.id===id)?.n).join(', '):'пока пусто — жми ★ в карточке'));return;}
-       const s=pick(e.clientX,e.clientY);if(s)openCard(s);else closeCard();
-      });
-      function pick(sx,sy){const now=performance.now();let best=null,bd=16;
-       for(const t of TOOLS){const[wx,wy]=starPos(t,now),[x,y]=w2s(wx,wy),d=Math.hypot(sx-x,sy-y);if(d<bd){bd=d;best=t;}}return best;}
-      function pickSpecial(sx,sy){const[a,b]=w2s(SC.x,SC.y);if(Math.hypot(sx-a,sy-b)<26)return'station';
-       const[c,d]=w2s(PL.x,PL.y);if(Math.hypot(sx-c,sy-d)<22)return'planet';return null;}
-      canvas.addEventListener('wheel',e=>{if(mode!=='map')return;e.preventDefault();
-       cam.z=Math.max(.45,Math.min(2.2,cam.z*(e.deltaY>0?.92:1.08)));},{passive:false});
-
-      /* ============ CARD ============ */
-      function openCard(t,skipHash){
-       current=t;const c=document.getElementById('card');c.classList.remove('hidden');
-       document.getElementById('cardName').textContent=t.n;
-       document.getElementById('cardCat').textContent=t.s==='h'?'Орбита чёрной дыры':'Созвездие · '+CATS[t.c].n;
-       document.getElementById('cardDesc').textContent=t.d;
-       const st=document.getElementById('cardStatus');st.className='mt-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border '+ST[t.s].cls;
-       st.innerHTML='<span class="w-1.5 h-1.5 rounded-full" style="background:'+ST[t.s].c+'"></span>'+ST[t.s].label;
-       document.getElementById('cardLink').href=t.u;
-       document.getElementById('cardTags').innerHTML=t.t.split(' ').map(x=>'<span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-500">'+x+'</span>').join('');
-       updFavIcon();
-       visited.add(t.id);localStorage.setItem('vc_visited',JSON.stringify([...visited]));updProgress();
-       if(!skipHash)history.replaceState(null,'','#star='+t.id);
-      }
-      function closeCard(){document.getElementById('card').classList.add('hidden');current=null;history.replaceState(null,'',' ');}
-      function toggleFav(){if(!current)return;favs.has(current.id)?favs.delete(current.id):favs.add(current.id);
-       localStorage.setItem('vc_favs',JSON.stringify([...favs]));updFavIcon();
-       toast(favs.has(current.id)?current.n+' выведен на твою орбиту 🪐':'Снят с орбиты');}
-      function updFavIcon(){const ic=document.getElementById('cardFavIcon'),on=current&&favs.has(current.id);
-       ic.setAttribute('icon',on?'solar:star-bold':'solar:star-linear');
-       document.getElementById('cardFav').classList.toggle('text-sky-300',on);}
-      function shareTool(){if(!current)return;navigator.clipboard.writeText(location.origin+location.pathname+'#star='+current.id);toast('Координаты звезды скопированы');}
-      function updProgress(){const p=Math.round(visited.size/TOOLS.length*100);
-       document.getElementById('progPct').textContent=p+'%';
-       document.getElementById('progBar').style.width=p+'%';
-       document.getElementById('progTxt').textContent='изучено '+visited.size+' из '+TOOLS.length+' звёзд';}
-      updProgress();
-
-      /* ============ WARP ============ */
-      function warpTo(t){if(isMobile()||mode==='cat'){openCard(t);return;}
-       closeCard();const[wx,wy]=starPos(t,performance.now());
-       warp={t0:performance.now(),p:0,fx:cam.x,fy:cam.y,fz:cam.z,tx:wx,ty:wy,tz:1.5,done:()=>openCard(t)};}
-
-      /* ============ MODE ============ */
-      function setMode(m){mode=m;
-       document.getElementById('btnMap').className='px-3.5 py-1.5 rounded-full transition '+(m==='map'?'bg-white/10 text-white':'text-slate-400 hover:text-white');
-       document.getElementById('btnCat').className='px-3.5 py-1.5 rounded-full transition '+(m==='cat'?'bg-white/10 text-white':'text-slate-400 hover:text-white');
-       document.getElementById('catalog').classList.toggle('hidden',m!=='cat');
-       document.getElementById('hint').classList.toggle('md:flex',m==='map');
-       if(m==='cat')renderCatalog();else closeCard();}
-
-      /* ============ CATALOG ============ */
-      let fCat=-1,fSt='';
-      function renderCatalog(){
-       const q=(document.getElementById('catSearch').value||'').toLowerCase();
-       document.getElementById('catFilters').innerHTML=['Все созвездия',...CATS.map(c=>c.n)].map((n,i)=>
-        '<button onclick="fCat='+(i-1)+';renderCatalog()" class="px-3 py-1.5 rounded-full text-xs border transition '+(fCat===i-1?'bg-violet-500/20 border-violet-400/40 text-violet-200':'bg-white/5 border-white/10 text-slate-400 hover:text-white')+'">'+n+'</button>').join('');
-       document.getElementById('statFilters').innerHTML=[['','Все статусы'],['w','проверено'],['y','требует входа'],['r','антибот/регион'],['h','перепроверить']].map(([k,n])=>
-        '<button onclick="fSt=\''+k+'\';renderCatalog()" class="px-3 py-1.5 rounded-full text-xs border transition '+(fSt===k?'bg-white/15 border-white/30 text-white':'bg-white/5 border-white/10 text-slate-500 hover:text-white')+'">'+n+'</button>').join('');
-       const list=TOOLS.filter(t=>(fCat<0||t.c===fCat)&&(!fSt||t.s===fSt)&&(!q||(t.n+' '+t.d+' '+t.t).toLowerCase().includes(q)));
-       document.getElementById('catCount').textContent='показано '+list.length+' из '+TOOLS.length+' звёзд · изучено '+visited.size;
-       document.getElementById('catGrid').innerHTML=list.map(t=>
-        '<div class="rounded-xl bg-white/[0.04] border border-white/10 p-4 hover:border-violet-400/40 hover:bg-white/[0.07] transition cursor-pointer group" onclick="openCard(TOOLS.find(x=>x.id===\''+t.id+'\'))">'+
-         '<div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background:'+ST[t.s].c+';box-shadow:0 0 8px '+ST[t.s].c+'"></span><span class="text-white text-sm font-semibold tracking-tight">'+t.n+'</span></div>'+
-         (visited.has(t.id)?'<iconify-icon icon="solar:flag-bold" width="13" class="text-emerald-400"></iconify-icon>':'')+'</div>'+
-         '<p class="text-xs text-slate-500 leading-relaxed mb-3">'+t.d+'</p>'+
-         '<div class="flex items-center justify-between"><span class="text-xs text-slate-600">'+CATS[t.c].n+'</span>'+
-         '<a href="'+t.u+'" target="_blank" onclick="event.stopPropagation()" class="text-xs text-violet-400 group-hover:text-violet-300 flex items-center gap-1">стыковка <iconify-icon icon="solar:arrow-right-up-linear" width="13" stroke-width="1.5"></iconify-icon></a></div></div>').join('')
-        ||'<div class="col-span-full text-center text-slate-600 text-sm py-10">В этом секторе пусто…</div>';
-      }
-
-      /* ============ PALETTE ============ */
-      const palInput=document.getElementById('palInput');
-      function openPalette(){document.getElementById('palette').classList.remove('hidden');palInput.value='';renderPal();setTimeout(()=>palInput.focus(),30);}
-      function closePalette(){document.getElementById('palette').classList.add('hidden');}
-      palInput.addEventListener('input',renderPal);
-      document.getElementById('palNav').innerHTML=['озвучка','презентация','код','картинка','видео','ресёрч','музыка'].map(x=>
-       '<button onclick="palInput.value=\''+x+'\';renderPal()" class="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white hover:border-violet-400/40 transition">'+x+'</button>').join('');
-      function renderPal(){
-       const q=palInput.value.toLowerCase().trim(),box=document.getElementById('palResults');
-       if(q.includes('смысл жизни')){box.innerHTML='<button onclick="enterVoid()" class="w-full text-left px-4 py-3 hover:bg-white/5 transition flex items-center gap-3"><iconify-icon icon="solar:infinity-linear" width="16" stroke-width="1.5" class="text-slate-500"></iconify-icon><span class="text-sm text-slate-300">За край карты →</span></button>';return;}
-       const score=t=>{const s=(t.n+' '+t.d+' '+t.t).toLowerCase();if(!q)return 1;if(t.n.toLowerCase().startsWith(q))return 3;if(s.includes(q))return 2;
-        return q.split(/\s+/).every(w=>s.includes(w))?1:0;};
-       const list=TOOLS.map(t=>[t,score(t)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,8);
-       box.innerHTML=list.map(([t])=>'<button onclick="palGo(\''+t.id+'\')" class="w-full text-left px-4 py-3 hover:bg-violet-500/10 transition flex items-center gap-3 border-t border-white/5">'+
-        '<span class="w-2 h-2 rounded-full shrink-0" style="background:'+ST[t.s].c+';box-shadow:0 0 8px '+ST[t.s].c+'"></span>'+
-        '<span class="flex-1 min-w-0"><span class="text-sm text-white font-medium">'+t.n+'</span><span class="block text-xs text-slate-500 truncate">'+t.d+'</span></span>'+
-        '<span class="text-xs text-slate-600 shrink-0">'+(t.s==='h'?'чёрная дыра':CATS[t.c].n)+'</span></button>').join('')
-        ||'<div class="px-4 py-6 text-center text-sm text-slate-600">В этой части космоса ничего не найдено</div>';
-      }
-      function palGo(id){closePalette();warpTo(TOOLS.find(t=>t.id===id));}
-      function enterVoid(){closePalette();const v=document.getElementById('void');v.classList.remove('hidden');requestAnimationFrame(()=>v.classList.add('opacity-100'));}
-      function leaveVoid(){const v=document.getElementById('void');v.classList.remove('opacity-100');setTimeout(()=>v.classList.add('hidden'),1000);}
-
-      /* ============ PROMPTS ============ */
-      let curPrompt=null,typeTimer=null;
-      function openPrompts(){document.getElementById('station').classList.remove('hidden');renderPromptList();history.replaceState(null,'','#prompts');}
-      function closePrompts(){document.getElementById('station').classList.add('hidden');clearInterval(typeTimer);history.replaceState(null,'',' ');}
-      function renderPromptList(){
-       document.getElementById('promptTags').innerHTML=PROMPTS.map((p,i)=>
-        '<button onclick="loadPrompt('+i+')" class="text-left px-3 py-2 rounded-lg text-xs transition w-full '+(curPrompt===i?'bg-violet-500/20 text-violet-200 border border-violet-400/30':'text-slate-400 hover:bg-white/5 border border-transparent')+'">'+
-        '<span class="block">'+p.n+'</span><span class="text-slate-600">#'+p.tag+'</span></button>').join('');}
-      function loadPrompt(i){curPrompt=i;renderPromptList();clearInterval(typeTimer);
-       const p=PROMPTS[i];document.getElementById('promptTitle').textContent='// '+p.n+' · #'+p.tag;
-       const btn=document.getElementById('copyBtn');btn.classList.remove('hidden');btn.classList.add('flex');document.getElementById('copyTxt').textContent='copy';
-       const body=document.getElementById('promptBody');let k=0;body.textContent='';
-       typeTimer=setInterval(()=>{k+=3;body.textContent=p.b.slice(0,k)+(k<p.b.length?'█':'');if(k>=p.b.length)clearInterval(typeTimer);},12);}
-      function copyPrompt(){if(curPrompt===null)return;navigator.clipboard.writeText(PROMPTS[curPrompt].b);
-       document.getElementById('copyTxt').textContent='передано на борт ✓';toast('Промпт передан на борт 🛰');
-       setTimeout(()=>document.getElementById('copyTxt').textContent='copy',1800);}
-
-      /* ============ MISC ============ */
-      let toastT=null;
-      function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.add('hidden'),2600);}
-      function applyHash(){const h=location.hash;
-       if(h==='#prompts')openPrompts();
-       else if(h.startsWith('#star=')){const t=TOOLS.find(x=>x.id===h.slice(6));if(t){if(isMobile()){setMode('cat');openCard(t,true);}else warpTo(t);}}}
-      addEventListener('keydown',e=>{
-       if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette();}
-       else if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();openPalette();}
-       else if(e.key==='Escape'){closePalette();closePrompts();closeCard();}});
-      if(isMobile()){document.getElementById('catalog').classList.add('overscroll-contain');}
-    </script>
-
-    <script>
-      (function(){
-      var interactive=false,camDist=250,camTheta=0,camPhi=1.18,dragging=false,lpx=0,lpy=0,moved=false;
-      var focus=null,focusDist=30,labelSprites=[];
-      var PROJECTS=[
-       {n:'YouTube Парсер',tag:'аналитика · бесплатно',d:'Находит закономерности в твоём контенте и выявляет паттерны успеха/провала видео — почему залетело или нет. Полностью бесплатный сервис.',u:'https://youtubesearch-1cl.pages.dev/'},
-       {n:'Viora Studio Tools',tag:'инструменты · безлимит',d:'Набор бесплатных браузерных инструментов: генерация PDF, скачивание видео, QR-коды. Без регистрации, рекламы и лимитов.',u:'https://viorasave.onrender.com/'},
-       {n:'Смета Online',tag:'ремонт · конструктор',d:'Конструктор смет для ремонта прямо в браузере — быстро и бесплатно.',u:'https://badvino-ctrl.github.io/smetaonline/'},
-       {n:'Сканер города',tag:'карты · места',d:'Сканер города для поиска скрытых и интересных мест рядом с тобой.',u:'https://badvino-ctrl.github.io/intr/'},
-       {n:'Браузерная игра 5×5',tag:'игра · мультиплеер',d:'Обновлённая браузерная игра V.Studio: собирай группу до 10 человек и играй в режиме 5 на 5.',u:'https://game-t4at.onrender.com/'},
-       {n:'Онлайн-школа с ИИ',tag:'образование · демо',d:'Демо-версия онлайн-школы с ИИ. Тестовый аккаунт — ник: tester, пароль: vsa12345.',u:'https://shweb-ten.vercel.app/'},
-       {n:'GitHub · все проекты',tag:'open source',d:'Мой GitHub — там лежат все проекты, исходники и эксперименты.',u:'https://github.com/badVIno-ctrl?tab=repositories'},
-       {n:'V.Studio · новый пак',tag:'обновления',d:'Пак улучшений старых проектов и анонсы новых: инструменты для файлов, сметы, сканер города и игра.',u:'https://viorasave.onrender.com/'}
-      ];
-      window.closeProj=function(){var p=document.getElementById('projPanel');if(p)p.classList.add('hidden');focus=null;};
-      function showProj(i){var p=PROJECTS[i];if(!p)return;
-       document.getElementById('projName').textContent=p.n;
-       document.getElementById('projDesc').textContent=p.d;
-       document.getElementById('projTag').textContent=p.tag;
-       document.getElementById('projLink').href=p.u;
-       document.getElementById('projPanel').classList.remove('hidden');}
-      window.toggle3D=function(){
-       interactive=!interactive;
-       var cv=document.getElementById('space3d');
-       cv.classList.toggle('pointer-events-none',!interactive);
-       cv.style.zIndex=interactive?'25':'2';
-       labelSprites.forEach(function(s){s.visible=interactive;});
-       if(!interactive)window.closeProj();
-       var b=document.getElementById('btn3d');
-       if(b)b.className=interactive?'hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-sky-500/20 border border-sky-400/40 text-xs text-sky-300 transition':'hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs text-slate-400 hover:text-white hover:border-white/20 transition';
-       if(typeof toast==='function')toast(interactive?'Режим проектов: каждая планета — мой проект. Кликай по планете, чтобы приблизить 🪐':'3D-режим выключен');
-      };
-      function boot(){
-      if(!window.THREE){setTimeout(boot,120);return;}
-      var cv=document.getElementById('space3d');if(!cv)return;
-      var renderer=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-      renderer.toneMapping=THREE.ACESFilmicToneMapping;
-      renderer.outputEncoding=THREE.sRGBEncoding;
-      var scene=new THREE.Scene();
-      var camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,4000);
-      camera.position.set(0,74,250);
-      function rs(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
-      addEventListener('resize',rs);rs();
-      var TL=new THREE.TextureLoader();TL.crossOrigin='anonymous';
-      var TEX='https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/';
-      var sys=new THREE.Group();sys.position.y=-26;scene.add(sys);
-      var sun=new THREE.Mesh(new THREE.SphereGeometry(12,64,64),new THREE.MeshBasicMaterial({map:TL.load(TEX+'sunmap.jpg'),color:0xffe2b0}));
-      sys.add(sun);
-      var sunLight=new THREE.PointLight(0xfff3da,2.6);sys.add(sunLight);
-      scene.add(new THREE.AmbientLight(0x36406e,0.85));
-      function glowTex(r1,g1,b1){var c=document.createElement('canvas');c.width=c.height=256;var g=c.getContext('2d');
-      var gr=g.createRadialGradient(128,128,0,128,128,128);
-      gr.addColorStop(0,'rgba('+r1+','+g1+','+b1+',1)');gr.addColorStop(.3,'rgba('+r1+','+g1+','+b1+',.4)');gr.addColorStop(1,'rgba('+r1+','+g1+','+b1+',0)');
-      g.fillStyle=gr;g.fillRect(0,0,256,256);return new THREE.CanvasTexture(c);}
-      var glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(255,210,130),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
-      glow.scale.set(105,105,1);sys.add(glow);
-      var P=[['mercurymap.jpg','mercurybump.jpg',1.1,24,4.15],['venusmap.jpg','venusbump.jpg',1.7,32,1.62],['earthmap1k.jpg','earthbump1k.jpg',1.8,42,1],['marsmap1k.jpg','marsbump1k.jpg',1.4,52,0.53],['jupitermap.jpg',null,6.2,74,0.084],['saturnmap.jpg',null,5.3,98,0.034],['uranusmap.jpg',null,3.1,118,0.012],['neptunemap.jpg',null,3,136,0.006]];
-      var planets=[];
-      P.forEach(function(p,i){
-      var mat=new THREE.MeshPhongMaterial({map:TL.load(TEX+p[0]),shininess:i===2?22:6,specular:0x222233});
-      if(p[1]){mat.bumpMap=TL.load(TEX+p[1]);mat.bumpScale=.15;}
-      if(i===2)mat.specularMap=TL.load(TEX+'earthspec1k.jpg');
-      var mesh=new THREE.Mesh(new THREE.SphereGeometry(p[2],56,56),mat);
-      mesh.userData.idx=i;
-      var pivot=new THREE.Object3D();pivot.rotation.y=Math.random()*6.283;
-      mesh.position.x=p[3];pivot.add(mesh);sys.add(pivot);
-      var pts=[];for(var a=0;a<=160;a++)pts.push(new THREE.Vector3(Math.cos(a/160*6.283)*p[3],0,Math.sin(a/160*6.283)*p[3]));
-      sys.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x8b7cf6,transparent:true,opacity:.14})));
-      if(i===2){
-      var cl=new THREE.Mesh(new THREE.SphereGeometry(p[2]*1.03,56,56),new THREE.MeshPhongMaterial({map:TL.load(TEX+'earthcloudmap.jpg'),transparent:true,opacity:.45,blending:THREE.AdditiveBlending,depthWrite:false}));
-      mesh.add(cl);mesh.userData.cl=cl;
-      var atm=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(110,170,255),transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}));
-      atm.scale.set(p[2]*3.4,p[2]*3.4,1);mesh.add(atm);
-      var mp=new THREE.Object3D();mesh.add(mp);
-      var moon=new THREE.Mesh(new THREE.SphereGeometry(.5,24,24),new THREE.MeshPhongMaterial({map:TL.load(TEX+'moonmap1k.jpg'),bumpMap:TL.load(TEX+'moonbump1k.jpg'),bumpScale:.06}));
-      moon.position.x=3.4;mp.add(moon);mesh.userData.mp=mp;}
-      if(i===5){
-      var ring=new THREE.Mesh(new THREE.RingGeometry(p[2]*1.35,p[2]*2.2,96),new THREE.MeshBasicMaterial({map:TL.load(TEX+'saturnringcolor.jpg'),alphaMap:TL.load(TEX+'saturnringpattern.gif'),side:THREE.DoubleSide,transparent:true,opacity:.9}));
-      ring.rotation.x=-1.35;mesh.add(ring);mesh.rotation.z=.46;}
-      var lc=document.createElement('canvas');lc.width=512;lc.height=128;var lg=lc.getContext('2d');
-      lg.font='600 42px Inter, sans-serif';lg.textAlign='center';lg.textBaseline='middle';
-      lg.shadowColor='rgba(56,189,248,.9)';lg.shadowBlur=16;lg.fillStyle='#fff';
-      lg.fillText(PROJECTS[i].n,256,64);
-      var lbl=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(lc),transparent:true,depthWrite:false}));
-      lbl.scale.set(p[2]*2+16,(p[2]*2+16)/4,1);lbl.position.y=p[2]+3.5;lbl.visible=false;mesh.add(lbl);labelSprites.push(lbl);
-      planets.push({pv:pivot,m:mesh,o:.05*p[4],r:.004+Math.random()*.006,idx:i,rad:p[2]});
-      });
-      var bn=1400,bp=new Float32Array(bn*3);
-      for(var i=0;i<bn;i++){var a=Math.random()*6.283,d=60+Math.random()*9;bp[i*3]=Math.cos(a)*d;bp[i*3+1]=(Math.random()-.5)*2.4;bp[i*3+2]=Math.sin(a)*d;}
-      var bg2=new THREE.BufferGeometry();bg2.setAttribute('position',new THREE.BufferAttribute(bp,3));
-      var belt=new THREE.Points(bg2,new THREE.PointsMaterial({color:0x9a8f86,size:.4,transparent:true,opacity:.65}));
-      sys.add(belt);
-      var raycaster=new THREE.Raycaster(),mouseV=new THREE.Vector2();
-      function meshes(){return planets.map(function(p){return p.m;});}
-      var mxr=0,myr=0;addEventListener('mousemove',function(e){mxr=e.clientX/innerWidth-.5;myr=e.clientY/innerHeight-.5;
-       if(interactive&&!dragging){mouseV.x=e.clientX/innerWidth*2-1;mouseV.y=-(e.clientY/innerHeight)*2+1;raycaster.setFromCamera(mouseV,camera);cv.style.cursor=raycaster.intersectObjects(meshes(),false).length?'pointer':'grab';}});
-      cv.addEventListener('pointerdown',function(e){if(!interactive)return;dragging=true;moved=false;lpx=e.clientX;lpy=e.clientY;cv.setPointerCapture(e.pointerId);});
-      addEventListener('pointermove',function(e){if(!dragging||!interactive)return;if(Math.abs(e.clientX-lpx)+Math.abs(e.clientY-lpy)>3)moved=true;camTheta-=(e.clientX-lpx)*.005;camPhi=Math.max(.15,Math.min(2.9,camPhi-(e.clientY-lpy)*.005));lpx=e.clientX;lpy=e.clientY;});
-      addEventListener('pointerup',function(e){var wasDrag=dragging&&moved;dragging=false;if(!interactive||wasDrag)return;
-       mouseV.x=e.clientX/innerWidth*2-1;mouseV.y=-(e.clientY/innerHeight)*2+1;
-       raycaster.setFromCamera(mouseV,camera);
-       var hits=raycaster.intersectObjects(meshes(),false);
-       if(hits.length){var pl=null;planets.forEach(function(p){if(p.m===hits[0].object)pl=p;});
-        if(pl){focus=pl;focusDist=pl.rad*4.5+6;showProj(pl.idx);}}
-       else window.closeProj();});
-      cv.addEventListener('wheel',function(e){if(!interactive)return;e.preventDefault();
-       if(focus)focusDist=Math.max(focus.rad*2.2,Math.min(220,focusDist*(e.deltaY>0?1.08:.92)));
-       else camDist=Math.max(40,Math.min(700,camDist*(e.deltaY>0?1.08:.92)));},{passive:false});
-      var clock=new THREE.Clock();var wp=new THREE.Vector3();
-      (function loop(){requestAnimationFrame(loop);
-      var dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
-      sun.rotation.y+=dt*.06;glow.material.opacity=.85+Math.sin(t*2.2)*.12;
-      planets.forEach(function(p){p.pv.rotation.y+=p.o*dt;p.m.rotation.y+=p.r;});
-      var e=planets[2].m;if(e.userData.cl)e.userData.cl.rotation.y+=.0012;if(e.userData.mp)e.userData.mp.rotation.y+=dt*.5;
-      belt.rotation.y+=dt*.012;
-      if(!interactive)sys.rotation.y+=dt*.008;
-      if(interactive){
-      if(focus){
-      focus.m.getWorldPosition(wp);
-      var fx=wp.x+Math.sin(camPhi)*Math.sin(camTheta)*focusDist,fy=wp.y+Math.cos(camPhi)*focusDist,fz=wp.z+Math.sin(camPhi)*Math.cos(camTheta)*focusDist;
-      camera.position.x+=(fx-camera.position.x)*.1;
-      camera.position.y+=(fy-camera.position.y)*.1;
-      camera.position.z+=(fz-camera.position.z)*.1;
-      camera.lookAt(wp);
-      }else{
-      var tx=Math.sin(camPhi)*Math.sin(camTheta)*camDist,ty=-26+Math.cos(camPhi)*camDist,tz=Math.sin(camPhi)*Math.cos(camTheta)*camDist;
-      camera.position.x+=(tx-camera.position.x)*.14;
-      camera.position.y+=(ty-camera.position.y)*.14;
-      camera.position.z+=(tz-camera.position.z)*.14;
-      camera.lookAt(0,-26,0);}
-      }else{
-      camera.position.x+=(mxr*70-camera.position.x)*.03;
-      camera.position.y+=(74-myr*46-camera.position.y)*.03;
-      camera.position.z+=(250-camera.position.z)*.05;
-      camera.lookAt(0,-22,0);}
-      renderer.render(scene,camera);})();
-      }
-      if(document.readyState==='loading')addEventListener('DOMContentLoaded',boot);else boot();
-      var FACTS=PROJECTS.map(function(p){return p.n+' · '+p.tag+' — '+p.d;});
-      var fi=0;
-      function fact(){var el=document.getElementById('solarFact');if(!el)return;el.style.opacity=0;setTimeout(function(){el.textContent=FACTS[fi%FACTS.length];el.style.opacity=1;fi++;},250);}
-      var sf=document.getElementById('solarFact');if(sf){sf.style.transition='opacity .25s';fact();setInterval(fact,5500);}
-      function iss(){fetch('https://api.wheretheiss.at/v1/satellites/25544').then(function(r){return r.json();}).then(function(d){var el=document.getElementById('issLive');if(el)el.innerHTML='<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>МКС live: '+d.latitude.toFixed(1)+'°, '+d.longitude.toFixed(1)+'° · '+Math.round(d.velocity)+' км/ч · h '+Math.round(d.altitude)+' км';}).catch(function(){});}
-      iss();setInterval(iss,10000);
-      })();
-    </script>
-
-    <script>
-      (function(){
-      const MORE_TOOLS=[
-       {id:'gigachat',n:'GigaChat',u:'https://giga.chat',c:0,s:'w',d:'Российский ассистент Сбера: тексты, картинки, работает без VPN.',t:'диалог россия бесплатно'},
-       {id:'qwen',n:'Qwen Chat',u:'https://chat.qwen.ai',c:0,s:'w',d:'Мощные открытые модели Alibaba: чат, код, изображения.',t:'диалог код бесплатно'},
-       {id:'kimi',n:'Kimi',u:'https://kimi.com',c:0,s:'w',d:'Ассистент Moonshot AI с огромным контекстом, силён в рассуждениях.',t:'диалог документы'},
-       {id:'kandinsky',n:'Kandinsky',u:'https://fusionbrain.ai',c:1,s:'w',d:'Генерация картинок от Сбера — бесплатно и без VPN.',t:'картинка россия бесплатно'},
-       {id:'shedevrum',n:'Шедеврум',u:'https://shedevrum.ai',c:1,s:'w',d:'Картинки и видео от Яндекса — просто и без регистрации зарубежом.',t:'картинка россия'},
-       {id:'flux',n:'FLUX',u:'https://playground.bfl.ai',c:1,s:'y',d:'Топовая модель генерации изображений от Black Forest Labs.',t:'картинка реализм'},
-       {id:'sora',n:'Sora',u:'https://sora.com',c:2,s:'r',d:'Видео-генератор OpenAI: ролики из текста и ремиксы.',t:'видео реализм'},
-       {id:'veo',n:'Google Veo',u:'https://labs.google/flow',c:2,s:'r',d:'Veo внутри Flow: кинематографичное видео со звуком.',t:'видео кино звук'},
-       {id:'adobepodcast',n:'Adobe Podcast',u:'https://podcast.adobe.com',c:3,s:'y',d:'Чистит запись голоса до студийного качества.',t:'озвучка звук подкаст'},
-       {id:'presai',n:'Presentations.AI',u:'https://presentations.ai',c:4,s:'y',d:'Дек из одного промпта с фирменным стилем компании.',t:'презентация слайды'},
-       {id:'copilot',n:'GitHub Copilot',u:'https://github.com/features/copilot',c:5,s:'y',d:'ИИ-напарник прямо в IDE и на GitHub.',t:'код автокомплит'},
-       {id:'lovable',n:'Lovable',u:'https://lovable.dev',c:5,s:'y',d:'Полноценные приложения из чата: фронт, бэк и деплой.',t:'код приложение'},
-       {id:'windsurf',n:'Windsurf',u:'https://windsurf.com',c:5,s:'w',d:'ИИ-редактор с агентом Cascade, щедрый бесплатный тариф.',t:'код редактор'},
-       {id:'deeplwrite',n:'DeepL Write',u:'https://deepl.com/write',c:6,s:'w',d:'Улучшает стиль и грамматику текста на лету.',t:'текст грамматика'},
-       {id:'notebooklm',n:'NotebookLM',u:'https://notebooklm.google.com',c:7,s:'y',d:'Загрузи документы — получи саммари, подкаст и ответы.',t:'ресёрч документы подкаст'},
-       {id:'scispace',n:'SciSpace',u:'https://scispace.com',c:7,s:'y',d:'Чтение и разбор научных статей с ИИ-объяснениями.',t:'ресёрч наука'}
-      ];
-      MORE_TOOLS.forEach(t=>{TOOLS.push(t);
-       const k=(counts[t.c]=(counts[t.c]||0)+1)-1,cat=CATS[t.c];
-       const ang=k*2.2+t.c,r=34+(k%3)*30+Math.floor(k/3)*22;
-       t.wx=cat.x*WW+Math.cos(ang)*r;t.wy=cat.y*WH+Math.sin(ang)*r*.7;t.ph=Math.random()*6;});
-      updProgress();
-      })();
-    </script>
-  </body>
+    }catch(e){ /* оставляем fallback-файлы */ }
+    renderAll();
+    setBadge('<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Синхронизировано с GitHub','text-emerald-300');
+  }catch(e){
+    setBadge('<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Офлайн · показаны сохранённые данные','text-amber-300');
+  }
+}
+liveSync();
+</script>
+</body>
 </html>
